@@ -1,0 +1,21 @@
+
+Researcher from Yale/IBM -
+https://www.krishnaswamylab.org/projects
+
+fMRI Repo:
+https://github.com/BorgwardtLab/fMRI_Cubical_Persistence
+
+fMRI Dataset:
+https://openneuro.org/datasets/ds000228/versions/1.0.0
+
+fMRI Preprocessing
+https://www.biorxiv.org/content/10.1101/2020.05.09.085860v1.full
+
+Brain TumorDataset:
+https://www.kaggle.com/datasets/navoneel/brain-mri-images-for-brain-tumor-detection
+
+NSD Data Manual:
+https://cvnlab.slite.com/p/channel/CPyFRAyDYpxdkPK6YbB5R1
+
+Retina Image Dataset:
+https://www.kaggle.com/paultimothymooney/kermany2018#NORMAL-1038998-1.jpeg.

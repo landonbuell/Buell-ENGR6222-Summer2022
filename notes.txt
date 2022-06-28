@@ -1,7 +1,0 @@
-
-Researcher from Yale/IBM -
-https://www.krishnaswamylab.org/projects
-
-https://github.com/BorgwardtLab/fMRI_Cubical_Persistence
-
-https://openneuro.org/datasets/ds000228/versions/1.0.0
