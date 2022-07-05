@@ -19,11 +19,10 @@ import PipelineTasks
 class Pipeline:
     """ Pipeline is a list of tasks to be executed in order """
 
-    def __init__(self):
+    def __init__(self,experiment):
         """ Constructor """
         self._queue         = np.array([],dtype=object)
-        self._preCallbacks  = []
-        self._postCallbacks = []
+        self._experiment    = expertiment
 
     def __del__(self):
         """ Destructor """
@@ -35,6 +34,10 @@ class Pipeline:
         """ Return the size of the pipeline """
         return self._queue.shape[0]
 
+    def getExperiment(self):
+        """ Get the Experiment that owns this queue """
+        return self._experiment
+
     # Public Interface
 
     def registerTask(self,taskItem):
@@ -44,7 +47,9 @@ class Pipeline:
             msg = "Registered item must be a child class of PipelineTasks.PipelineTask. "
             msg += "Instead got {0}".format(taskItem.__class__)
             raise RuntimeError(msg)
+        # Add the Task to the Queue and 
         self._queue = np.append(self._queue,taskItem)
+        taskItem.setOwner(self)
         return self
 
     def evaluate(self,*args):
@@ -56,38 +61,96 @@ class Pipeline:
         self.evaluatePostprocessCallbacks()
         return self
 
-    def registerPreprocessCallbacks(self,callback):
-        """ Register a method to be evaluated before the pipeline """
-        self._preCallbacks.append(callback)
-        return self
-
-    def registerPostprocessCallbacks(self,callback):
-        """ Register a method to be evaluated after the pipeline """
-        self._postCallbacks.append(callback)
-        return self
-
     # Private Interface
 
-    def evaluatePreprocessCallbacks(self):
-        """ Evaluate Callbacks before the pipeline """
-        for item in self._preCallbacks:
-            item()
+
+
+    # Magic Methods
+
+    def __len__(self):
+        """ Get the size of current pipline """
+        return self._queue.shape[0]
+
+class PipelineTask:
+    """ Abstract base class for a pipeline item """
+
+    def __init__(self,name,callbacks=None,*args,**kwargs):
+        """ Constructor """
+        self._name          = name
+        self._owner         = None
+        self._callbacks     = []
+        self._description   = ""
+        # Check for callbacks to register
+        if (callbacks is not None):
+            self._callbacks = [x for x in callbacks]
+
+    def __del__(self):
+        """ Destructor """
+
+    # Getters and Setters 
+
+    def getName(self):
+        """ Return the name of this task """
+        return self._name
+
+    def getOwner(self):
+        """ Get the Pipeline that owns this task instance """
+        return self._owner
+
+    def setOwner(self,ownerPipeline):
+        """ Set the Pipeline that owns this task """
+        self._owner = ownerPipeline
         return self
-
-    def evaluatePostprocessCallbacks(self):
-        """ Evaluate Callbacks after the pipeline """
-        for item in self._postCallbacks:
-            item()
-        return self
-
-class PipleineInitializationStrategies:
-    """ Static class of methods to initialize a pipeline """
-
-    def __init__(self):
-        """ Dummy Constructor """
-        msg = "{0} : Is a static class. Cannot make instance".format(self.__class__)
-        raise RuntimeError(msg)
 
     # Public Interface
 
-    # TODO: Implement these for each step in the experiment
+    def describe(self):
+        """ Return a description of this instance """
+        print(self._description)
+
+    def call(self,inputs=None):
+        """ Invoke this task w/ Input Arguments """
+        outputs = None
+        return outputs
+
+    def hasOwner(self):
+        """ Return T/F if this task belongs to a pipeline """
+        return (self._owner is not None)
+
+    # Protected Interface
+
+    def evaluateCallbacks(self):
+        """ Evaluate Callbacks within this Task """
+        for item in self._callbacks:
+            item()
+        return self
+    
+class LoadDataset(PipelineTask):
+    """ Task to load in a specfied dataset """
+
+    def __init__(self,datasetCode):
+        """ Constructor """
+        super().__init__("LoadDataset")
+        self._datasetCode   = datasetCode
+
+    def __del__(self):
+        """ Destructor """
+
+    # Public Interface
+
+    def call(self,inputs):
+        """ Load in this last + Return the Output """
+        
+
+
+    # Static Interface
+
+    @staticmethod
+    def loadSklearnDigits8x8():
+        """ Load 8x8 digits from Sklearn data set """
+        return sklearn.datasets.load_digits(return_X_y=True)
+
+    @staticmethod
+    def loadSklearnDigits28x28():
+        """ Load 28 x 28 digits from Sklearn Data set """
+        return sklearn.datasets.fetch_openml("mnist_784")

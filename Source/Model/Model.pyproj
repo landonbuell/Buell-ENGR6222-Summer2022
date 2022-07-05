@@ -22,7 +22,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="NeuralNetworks.py" />
-    <Compile Include="PipelineTasks.py" />
+    <Compile Include="Experiments.py" />
     <Compile Include="PipelineUtilities.py" />
     <Compile Include="__init__.py" />
   </ItemGroup>
