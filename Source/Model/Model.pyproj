@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>deb2f605-0642-4a0a-875c-2ab4150f5f82</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Model.py</StartupFile>
+    <StartupFile>__init__.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,7 +21,10 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Model.py" />
+    <Compile Include="NeuralNetworks.py" />
+    <Compile Include="PipelineTasks.py" />
+    <Compile Include="PipelineUtilities.py" />
+    <Compile Include="__init__.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
