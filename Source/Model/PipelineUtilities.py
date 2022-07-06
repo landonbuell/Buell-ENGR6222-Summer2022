@@ -22,7 +22,7 @@ class Pipeline:
     def __init__(self,experiment):
         """ Constructor """
         self._queue         = np.array([],dtype=object)
-        self._experiment    = expertiment
+        self._experiment    = experiment
 
     def __del__(self):
         """ Destructor """
@@ -132,6 +132,8 @@ class LoadDataset(PipelineTask):
         """ Constructor """
         super().__init__("LoadDataset")
         self._datasetCode   = datasetCode
+        self._numClasses    = 0
+        self._loaderMethod  = self.
 
     def __del__(self):
         """ Destructor """
@@ -141,6 +143,7 @@ class LoadDataset(PipelineTask):
     def call(self,inputs):
         """ Load in this last + Return the Output """
         
+    # Protected Interface
 
 
     # Static Interface

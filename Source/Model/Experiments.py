@@ -97,6 +97,6 @@ class BaselineDigits28x28(Experiment):
 
     def buildQueue(self):
         """ Construct the Queue of Tasks for this experiment """
-        self._queue.registerTask()
+        self._queue.registerTask( PipelineUtilities.LoadDataset("mnist784") )
 
         return self
