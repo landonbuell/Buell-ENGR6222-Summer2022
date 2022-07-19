@@ -80,12 +80,37 @@ class NeuralNetworkModel:
 
     # Public Interface
 
-    def getConvNeuralNetwork(self,inputShape,numClasses):
+    @staticmethod
+    def getConvNeuralNetworkA(inputShape,numClasses):
         """ Generate and Compile a Tensorflow Convolutional Neural Network """
         model = tf.keras.models.Sequential()
+        model.add( tf.keras.layers.InputLayer(input_shape=inputShape)    )
 
         # 1st Layer Group
-        model.add( tf.keras.layers.Conv2D(filters=32,kernel_size=(3,3),activation='relu',input_shape=inputShape) )
+        model.add( tf.keras.layers.Conv2D(filters=32,kernel_size=(2,2),activation='relu') )
+        model.add( tf.keras.layers.Conv2D(filters=32,kernel_size=(2,2),activation='relu') )
+        model.add( tf.keras.layers.MaxPooling2D(pool_size=(2,2)) ) 
+
+        # Multilayer Perceptron
+        model.add( tf.keras.layers.Flatten() )
+        model.add( tf.keras.layers.Dense(units=32,activation='relu') )
+        model.add( tf.keras.layers.Dense(units=32,activation='relu') )
+        model.add( tf.keras.layers.Dense(units=numClasses,activation='softmax') )
+
+        # Compile
+        model.compile(optimizer=tf.keras.optimizers.Adam(),
+                      loss=tf.keras.losses.CategoricalCrossentropy(),
+                      metrics=['accuracy','precision','recall'])
+        return model
+
+    @staticmethod
+    def getConvNeuralNetworkB(inputShape,numClasses):
+        """ Generate and Compile a Tensorflow Convolutional Neural Network """
+        model = tf.keras.models.Sequential()
+        model.add( tf.keras.layers.InputLayer(input_shape=inputShape)    )
+
+        # 1st Layer Group
+        model.add( tf.keras.layers.Conv2D(filters=32,kernel_size=(3,3),activation='relu') )
         model.add( tf.keras.layers.Conv2D(filters=32,kernel_size=(3,3),activation='relu') )
         model.add( tf.keras.layers.MaxPooling2D(pool_size=(2,2)) ) 
 
@@ -105,3 +130,5 @@ class NeuralNetworkModel:
                       loss=tf.keras.losses.CategoricalCrossentropy(),
                       metrics=['accuracy','precision','recall'])
         return model
+
+    
