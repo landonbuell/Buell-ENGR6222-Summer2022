@@ -81,15 +81,16 @@ class NeuralNetworkModel:
     # Public Interface
 
     @staticmethod
-    def getConvNeuralNetworkA(inputShape,numClasses):
+    def getConvNeuralNetworkA(inputShape,numClasses,randomSeed=0):
         """ Generate and Compile a Tensorflow Convolutional Neural Network """
+        tf.random.set_seed(randomSeed)
         model = tf.keras.models.Sequential()
         model.add( tf.keras.layers.InputLayer(input_shape=inputShape)    )
 
         # 1st Layer Group
         model.add( tf.keras.layers.Conv2D(filters=32,kernel_size=(2,2),activation='relu') )
         model.add( tf.keras.layers.Conv2D(filters=32,kernel_size=(2,2),activation='relu') )
-        model.add( tf.keras.layers.MaxPooling2D(pool_size=(2,2)) ) 
+        model.add( tf.keras.layers.MaxPooling2D(pool_size=(3,3)) ) 
 
         # Multilayer Perceptron
         model.add( tf.keras.layers.Flatten() )
@@ -104,8 +105,9 @@ class NeuralNetworkModel:
         return model
 
     @staticmethod
-    def getConvNeuralNetworkB(inputShape,numClasses):
+    def getConvNeuralNetworkB(inputShape,numClasses,randomSeed=0):
         """ Generate and Compile a Tensorflow Convolutional Neural Network """
+        tf.random.set_seed(randomSeed)
         model = tf.keras.models.Sequential()
         model.add( tf.keras.layers.InputLayer(input_shape=inputShape)    )
 

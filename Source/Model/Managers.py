@@ -13,6 +13,7 @@ import numpy as np
 import sklearn.datasets
 from sklearn.model_selection import train_test_split
 
+
 import NeuralNetworks
 
         #### FUNCTION DEFINITIONS ####
@@ -39,8 +40,8 @@ DATASET_KEYWORD_TO_LOADER_CALLBACK = \
 
 DATASET_KEYWORD_TO_MODEL_BUILDER_CALLBACK = \
 {
-    "mnist64"   : NeuralNetwork.NeuralNetworkModel.getConvNeuralNetworkA,
-    "mnist784"  : NeuralNetwork.NeuralNetworkModel.getConvNeuralNetworkB,
+    "mnist64"   : NeuralNetworks.NeuralNetworkModel.getConvNeuralNetworkA,
+    "mnist784"  : NeuralNetworks.NeuralNetworkModel.getConvNeuralNetworkB,
     "cifar10"   : None,
 }
 
@@ -160,9 +161,9 @@ class DatasetManager(AbstractManager):
        
         return self
 
-    def call(self):
+    def loadDataset(self):
         """ Load in this last + Return the Output """
-        self.registerCallbackFromDatasetCode(self._datasetCode)
+        self.registerCallbackFromDatasetCode()
         if (self._loaderCallback is None):
             msg = "Dataset loading callback not set!"
             raise RuntimeError(msg)
@@ -174,7 +175,7 @@ class DatasetManager(AbstractManager):
 
     # Protected Interface
 
-    def registerCallbackFromDatasetCode(self,):
+    def registerCallbackFromDatasetCode(self):
         """ Choose Callback based on Dataset key """
         successful = False
         codeWord = self._datasetCode
@@ -194,6 +195,7 @@ class ConvNeuralNetworkBuilder(AbstractManager):
         super().__init__("ConvNeuralNetworkBuilder")
         self._datasetCode       = datasetCode
         self._modelCallback     = None
+        self._randomSeed        = np.random.randint(0,1e6,1)
         self._model             = None
 
     def __del__(self):
@@ -213,18 +215,28 @@ class ConvNeuralNetworkBuilder(AbstractManager):
         """ Return the stored TF Model """
         return self._model
 
+    def getSeed(self):
+        """ Get the current random seed """
+        return self._randomSeed
+
+    def setSeed(self,seed):
+        """ Set the current random seed """
+        self._randomSeed = seed
+        return self
+
     # Public Interface 
 
-    def call(self):
+    def buildModel(self):
         """ Call this Instance """
         self.registerCallbackFromDatasetCode()
         if (self._modelCallback is None):
             msg = "Dataset loading callback not set!"
             raise RuntimeError(msg)
 
-        model = self._loaderCallback.__call__(
+        model = self._modelCallback.__call__(
             self.getInputShape(),
-            self.getNumClasses() )
+            self.getNumClasses(),
+            self.getSeed())
 
         # Show Summary of Model
         print(model.summary())
@@ -239,7 +251,7 @@ class ConvNeuralNetworkBuilder(AbstractManager):
         successful = False
         codeWord = self._datasetCode
         try:
-            self._loaderCallback = DATASET_KEYWORD_TO_MODEL_BUILDER_CALLBACK[codeWord]
+            self._modelCallback = DATASET_KEYWORD_TO_MODEL_BUILDER_CALLBACK[codeWord]
             successful = True
         except KeyError as err:
             msg = "Dataset Keyword {0} was not recognized.".format(codeWord)
@@ -252,9 +264,10 @@ class TrainingManager(AbstractManager):
     def __init__(self,trainSize,trainEpochs):
         """ Constructor """
         super().__init__("TrainingManager")
-        self._trainSize     = trainSize
-        self._trainEpochs   = trainEpochs
-
+        self._trainSize             = trainSize
+        self._trainEpochs           = trainEpochs
+        self._batchSize             = 32
+    
     def __del__(self):
         """ Destructor """
 
@@ -272,6 +285,31 @@ class TrainingManager(AbstractManager):
         """ Get the number of epochs in training process """
         return self._trainEpochs
 
+    # Public Interface
+
+    def splitTrainTest(self):
+        """ Perform Train-Test Split """
+        return train_test_split(
+            self.getOwner().getDatasetManager().getDesignMatrix(),
+            self.getOwner().getDatasetManager().getTargetLabels(),
+            train_size=self._trainSize)
+
+    def trainModel(self,X,y):
+        """ Train a Model w/ X + y Data """
+        model = self.getOwner().getModelManager().getModel()
+        rundataMgr = self.getOwner().getRundataManager()
+        
+        # Train + Get History
+        history = model.fit(X,y,batch_size=self._batchSize,epochs=self._trainEpochs)
+        rundataMgr.updateHistory(history)
+
+
+        return self
+
+    @staticmethod
+    def oneHotEncode(targetVector,numClasses):
+        """ One - Hot encode samples for multi classification """
+
 class ExportManager(AbstractManager):
     """ Class to Export the results of an Experiment """
 
@@ -279,12 +317,17 @@ class ExportManager(AbstractManager):
         """ Constructor """
         super().__init__("ExportManager")
         self._outputPath    = outputPath
-
+        self._history       = NeuralNetworks.RunningHistory()
 
     def __del__(self):
         """ Destructor """
 
     # Public Interface 
 
+    def updateHistory(self,history):
+        """ Update this history w/ training data """
+        self._history.update(history)
+        return self
+        
 
 

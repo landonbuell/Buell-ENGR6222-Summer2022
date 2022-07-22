@@ -147,12 +147,21 @@ class Experiment:
         self.evaluatePreprocessCallbacks()
 
         # Main Experiment Body
-        self._datasetManager.call()
+        self._datasetManager.loadDataset()
 
         # Number of Times to repeat the experiment
-        for iter in range(self._numIters):
-            self._modelManager.call()
+        seeds = np.random.randint(0,1e6,size=(self._numIters,))
+        for i in range(self._numIters):
 
+            # Generate the Model w/ a Random Seed
+            self._modelManager.setSeed(seeds[i])
+            self._modelManager.buildModel()
+
+            # Split the Dataset
+            (X_train,X_test,y_train,y_test) = \
+                self._trainManager.splitTrainTest()
+
+            self._trainManager.trainModel(X_train,y_train)
 
             
 
