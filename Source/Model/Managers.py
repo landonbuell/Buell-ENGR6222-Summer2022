@@ -172,6 +172,14 @@ class DatasetManager(AbstractManager):
         self._loaderCallback.__call__(self)
            
         return self
+  
+    @staticmethod
+    def oneHotEncode(targetVector,numClasses):
+        """ One - Hot encode samples for multi classification """
+        oneHot = np.zeros(shape=(targetVector.shape[0],numClasses),dtype=np.int16)
+        for i,y in enumerate(targetVector):
+            oneHot[i,y] = 1
+        return oneHot
 
     # Protected Interface
 
@@ -298,17 +306,16 @@ class TrainingManager(AbstractManager):
         """ Train a Model w/ X + y Data """
         model = self.getOwner().getModelManager().getModel()
         rundataMgr = self.getOwner().getRundataManager()
-        
+
+        numClasses = self.getOwner().getDatasetManager().getNumClasses()
+        y = DatasetManager.oneHotEncode(y,numClasses)
+
         # Train + Get History
         history = model.fit(X,y,batch_size=self._batchSize,epochs=self._trainEpochs)
         rundataMgr.updateHistory(history)
 
 
         return self
-
-    @staticmethod
-    def oneHotEncode(targetVector,numClasses):
-        """ One - Hot encode samples for multi classification """
 
 class ExportManager(AbstractManager):
     """ Class to Export the results of an Experiment """

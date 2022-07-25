@@ -15,6 +15,13 @@ import pandas as pd
 
 import tensorflow as tf
 
+        #### RUNTIME CONSTANTS ####
+
+METRICS = [ tf.keras.metrics.Precision,
+            tf.keras.metrics.Recall,
+            #tf.keras.metrics.F1Score,
+            tf.keras.metrics.Accuracy]
+
         #### CLASS DEFINITIONS ####
 
 class RunningHistory:
@@ -101,7 +108,7 @@ class NeuralNetworkModel:
         # Compile
         model.compile(optimizer=tf.keras.optimizers.Adam(),
                       loss=tf.keras.losses.CategoricalCrossentropy(),
-                      metrics=['accuracy','precision','recall'])
+                      metrics=METRICS)
         return model
 
     @staticmethod
@@ -130,7 +137,7 @@ class NeuralNetworkModel:
         # Compile
         model.compile(optimizer=tf.keras.optimizers.Adam(),
                       loss=tf.keras.losses.CategoricalCrossentropy(),
-                      metrics=['accuracy','precision','recall'])
+                      metrics=METRICS)
         return model
 
     
