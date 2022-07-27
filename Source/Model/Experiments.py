@@ -26,6 +26,7 @@ class Experiment:
                  numIters=1):
         """ Constructor """
         self._numIters      = numIters
+        self._description   = ""
 
         self._datasetManager    = None      # Class to Loading in Dataset as (x,y) pair
         self._modelManager      = None      # Class to build Model based off of dataset
@@ -141,6 +142,11 @@ class Experiment:
         self._rundataManager.setOwner(self)
         return self
 
+    def registerDescription(self,descriptionString):
+        """ Register a string to describe this experiment """
+        self._description = descriptionString
+        return self
+
     def run(self):
         """ Execute the Experiment """
         self.checkAllManagersAreNotNone()
@@ -148,9 +154,9 @@ class Experiment:
 
         # Main Experiment Body
         self._datasetManager.loadDataset()
+        seeds = np.random.randint(0,1e6,size=(self._numIters,))
 
         # Number of Times to repeat the experiment
-        seeds = np.random.randint(0,1e6,size=(self._numIters,))
         for i in range(self._numIters):
 
             # Generate the Model w/ a Random Seed
@@ -161,13 +167,26 @@ class Experiment:
             (X_train,X_test,y_train,y_test) = \
                 self._trainManager.splitTrainTest()
 
-            self._trainManager.trainModel(X_train,y_train)
+            # Train + Evaluate
+            self._trainManager.trainModel(X_train,y_train,i)
+            self._trainManager.testModel(X_test,y_test,i)
 
-            
+            # Clear Everything
+            self._rundataManager.clearTrainingHistory()
+            self._rundataManager.clearTestingResults()
+
+        # Output Run Information for Post-analysis
 
         self.evaluatePostprocessCallbacks()
 
         return self
+
+    def exportConfiguration(self):
+        """ Export experiment configuration details """
+
+
+        return self
+
 
     # Protected Interface
        
@@ -212,6 +231,6 @@ class Experiment:
             outputPath,
             'mnist64',
             trainSize=0.8,
-            trainEpochs=100,
+            trainEpochs=10,
             numIters=1)
         return experiment

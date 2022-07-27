@@ -26,8 +26,9 @@ if __name__ == "__main__":
     #app = Experiments.Experiment.getBaselineDigits28x28(outputPath)
     app = Experiments.Experiment.getBaselineDigits8x8(outputPath)
 
-    # Run the Experiment
+    # Run the Experiment + Export Configuration
     app.run()
+    app.exportConfiguration()
 
     # Exit
     sys.exit()

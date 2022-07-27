@@ -17,10 +17,9 @@ import tensorflow as tf
 
         #### RUNTIME CONSTANTS ####
 
-METRICS = [ tf.keras.metrics.Precision,
-            tf.keras.metrics.Recall,
-            #tf.keras.metrics.F1Score,
-            tf.keras.metrics.Accuracy]
+METRICS = [ tf.keras.metrics.Precision(),
+            tf.keras.metrics.Recall(),
+            tf.keras.metrics.Accuracy() ]
 
         #### CLASS DEFINITIONS ####
 
@@ -56,26 +55,81 @@ class RunningHistory:
         """ Get the array of recalls """
         return self._recall
 
+    def getF1Score(self):
+        """ Get the Array of F1 Scores """
+        return (self._precision * self._recall) / (self._precision  + self._recall)
+
     def getIterationCount(self):
         """ Get the number of iterations """
         return self._iterCount
+
+    def getMetricsDictionary(self):
+        """ Get all metrics as a dictionary """
+        resultMap = {
+            "Accuracy":     self._accuracy,
+            "Loss":         self._losses,
+            "Precision":    self._precision,
+            "Recall":       self._recall,
+            "F1-Score":     self.getF1Score() }
+        return resultMap
 
     # Public Interface
 
     def update(self,history):
         """ Update the state of this class w/ a history object """
-        self._losses    = np.append(self._losses,history['loss'])
-        self._accuracy  = np.append(self._accuracy,history['accuracy'])
-        self._precision = np.append(self._precision,history['precision'])
-        self._recall    = np.append(self._recall,history['recall'])
+        self._losses    = np.append(self._losses,   history.history['loss'])
+        self._accuracy  = np.append(self._accuracy, history.history['accuracy'])
+        self._precision = np.append(self._precision,history.history['precision'])
+        self._recall    = np.append(self._recall,   history.history['recall'])
         self._iterCount += 1
         return self
 
-    def plotHistory(self,show=True,save=None):
-        """ Generate a plot of history """
-        plt.figure(figsize=(16,12),facecolor='gray')
-        plt.title()
+    def clear(self):
+        """ Clear all Metric Data """
+        self._losses    = np.array([],dtype=np.float32)
+        self._accuracy  = np.array([],dtype=np.float32)
+        self._precision = np.array([],dtype=np.float32)
+        self._recall    = np.array([],dtype=np.float32)
+        self._iterCount = 0
+        return self
     
+class TestResults:
+    """ Store the Test Results for a model after training """
+
+    def __init__(self):
+        """ Constructor """
+        self._outputs       = np.array([],dtype=np.int16)
+        self._labels        = np.array([],dtype=np.int16)
+        self._numClasses    = 0
+
+    def __del__(self):
+        """ Destructor """
+
+    def getResultsDictionary(self):
+        """ Get all Results as a dictionary """
+        numClasses = self._outputs.shape[-1]
+        resultMap = { "Labels":       self._labels }
+        for i in range(numClasses):
+            key = "class_{0}".format(i)
+            val = resultMap[:,i]
+            resultMap.update({key:val})
+
+        return 
+
+    def update(self,predictions,labels):
+        """ Update the testing results """
+        self._outputs = predictions
+        self._labels = labels
+        return self
+
+    def clear(self):
+        """ Clear all output data """
+        self._outputs       = np.array([],dtype=np.int16)
+        self._labels        = np.array([],dtype=np.int16)
+        return self
+
+
+
 
 class NeuralNetworkModel:
     """ Class to build + Compile TF Neural network models """
@@ -108,7 +162,7 @@ class NeuralNetworkModel:
         # Compile
         model.compile(optimizer=tf.keras.optimizers.Adam(),
                       loss=tf.keras.losses.CategoricalCrossentropy(),
-                      metrics=METRICS)
+                      metrics=METRICS )
         return model
 
     @staticmethod

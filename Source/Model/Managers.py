@@ -9,7 +9,11 @@ File:           Utilities.py
 
         #### IMPORTS ####
 
+import os
+
 import numpy as np
+import pandas as pd
+
 import sklearn.datasets
 from sklearn.model_selection import train_test_split
 
@@ -302,7 +306,7 @@ class TrainingManager(AbstractManager):
             self.getOwner().getDatasetManager().getTargetLabels(),
             train_size=self._trainSize)
 
-    def trainModel(self,X,y):
+    def trainModel(self,X,y,iterNum):
         """ Train a Model w/ X + y Data """
         model = self.getOwner().getModelManager().getModel()
         rundataMgr = self.getOwner().getRundataManager()
@@ -312,7 +316,18 @@ class TrainingManager(AbstractManager):
 
         # Train + Get History
         history = model.fit(X,y,batch_size=self._batchSize,epochs=self._trainEpochs)
-        rundataMgr.updateHistory(history)
+        rundataMgr.updateTrainingHistory(history)
+        rundataMgr.exportTrainingHistory("trainingHistory_{0}.csv".format(iterNum))
+
+        return self
+
+    def testModel(self,X,y,iterNum):
+        """ Test a Model w/ X + y Data """
+        model = self.getOwner().getModelManager().getModel()
+        rundataMgr = self.getOwner().getRundataManager()
+
+        # Test + Get Predictions
+        outputs = model.predict(X,y,batch_size=self._batchSize)
 
 
         return self
@@ -323,17 +338,65 @@ class ExportManager(AbstractManager):
     def __init__(self,outputPath):
         """ Constructor """
         super().__init__("ExportManager")
-        self._outputPath    = outputPath
-        self._history       = NeuralNetworks.RunningHistory()
+        self._outputPath        = os.path.abspath(outputPath)
+        self._trainHistory      = NeuralNetworks.RunningHistory()
+        self._testResults       = NeuralNetworks.TestResults()
+
+        self.makeOutputPath()
 
     def __del__(self):
         """ Destructor """
 
     # Public Interface 
 
-    def updateHistory(self,history):
+    def updateTrainingHistory(self,history):
         """ Update this history w/ training data """
-        self._history.update(history)
+        self._trainHistory.update(history)
+        return self
+
+    def updateTestResults(self,results,labels):
+        """ Update this results w/ testing data """
+        self._testResults.update(results,labels)
+        return self
+
+    def exportTrainingHistory(self,fileName):
+        """ Export history to CSV file """
+        outputFrame = pd.DataFrame(data=self._trainHistory.getMetricsDictionary())
+        outputPath = os.path.join(self._outputPath,fileName)
+        outputFrame.to_csv(outputPath,sep="\t",header=True,index=True)
+        return self
+
+    def exportTestingResults(self,fileName):
+        """ Export results to CSV file """
+        outputFrame = pd.DataFrame(data=self._testResults.getResultsDictionary())
+        outputPath = os.path.join(self._outputPath,fileName)
+        outputFrame.to_csv(outputPath,sep="\t",header=True,index=True)
+        return self
+
+    def clearTrainingHistory(self):
+        """ Clear the history instance """
+        self._trainHistory.clear()
+        return self
+
+    def clearTestingResults(self):
+        """ Clear the results instance """
+        self._testResults.clear()
+        return self
+
+    # Private Interface
+
+    def makeOutputPath(self):
+        """ Make the output directory """
+        if (os.path.isdir(self._outputPath) == True):
+            # Output path Exists
+            msg = "WARNING: Output path '{0}' already exists. Content may be overwritten".format(
+                self._outputPath)
+            print(msg)
+        else:
+            # Output path does not exist
+            msg = "Sending outputs to path: '{0}' ".format(self._outputPath)
+            print(msg)
+            os.makedirs(self._outputPath)
         return self
         
 
