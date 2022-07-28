@@ -327,8 +327,9 @@ class TrainingManager(AbstractManager):
         rundataMgr = self.getOwner().getRundataManager()
 
         # Test + Get Predictions
-        outputs = model.predict(X,y,batch_size=self._batchSize)
-
+        outputs = model.predict(X)
+        rundataMgr.updateTestResults(outputs,y)
+        rundataMgr.exportTestResults("testResults_{0}.csv".format(iterNum))
 
         return self
 
@@ -347,6 +348,12 @@ class ExportManager(AbstractManager):
     def __del__(self):
         """ Destructor """
 
+    # Getters and Setters
+
+    def getOutputPath(self):
+        """ Return the output path """
+        return self._outputPath
+
     # Public Interface 
 
     def updateTrainingHistory(self,history):
@@ -363,14 +370,14 @@ class ExportManager(AbstractManager):
         """ Export history to CSV file """
         outputFrame = pd.DataFrame(data=self._trainHistory.getMetricsDictionary())
         outputPath = os.path.join(self._outputPath,fileName)
-        outputFrame.to_csv(outputPath,sep="\t",header=True,index=True)
+        outputFrame.to_csv(outputPath,sep=",",header=True,index=True)
         return self
 
-    def exportTestingResults(self,fileName):
+    def exportTestResults(self,fileName):
         """ Export results to CSV file """
         outputFrame = pd.DataFrame(data=self._testResults.getResultsDictionary())
         outputPath = os.path.join(self._outputPath,fileName)
-        outputFrame.to_csv(outputPath,sep="\t",header=True,index=True)
+        outputFrame.to_csv(outputPath,sep=",",header=True,index=True)
         return self
 
     def clearTrainingHistory(self):

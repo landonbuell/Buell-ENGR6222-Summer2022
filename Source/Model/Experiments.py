@@ -9,6 +9,7 @@ File:           PipelineTasks.py
 
         #### IMPORTS ####
 
+import os
 import numpy as np
 
 import Managers
@@ -176,31 +177,40 @@ class Experiment:
             self._rundataManager.clearTestingResults()
 
         # Output Run Information for Post-analysis
-
         self.evaluatePostprocessCallbacks()
 
         return self
 
     def exportConfiguration(self):
         """ Export experiment configuration details """
-
-
+        strFmt = lambda x,y : "{0:<32}{1:<128}\n".format(x,y)
+        outputPath = os.path.join(self._rundataManager.getOutputPath(),"config.txt")
+        with open(outputPath,"w") as outFile:
+            outFile.write( "#"*64  + "\n")
+            outFile.write( strFmt("OutputPath",    self._rundataManager.getOutputPath()) )
+            outFile.write( strFmt("DatasetKey",    self._datasetManager.getDatasetKeyWord()) )
+            outFile.write( strFmt("TrainSize",     self._trainManager.getTrainSize()) )
+            outFile.write( strFmt("TestSize",      self._trainManager.getTestSize()) )
+            outFile.write( strFmt("NumEpochs",     self._trainManager.getNumEpochs()) )
+            outFile.write( strFmt("NumIters",      self._numIters) )
+            outFile.write( strFmt("NumSamples",    self._datasetManager.getNumSamples()) )
+            outFile.write( strFmt("NumClasses",    self._datasetManager.getNumClasses()) )
+            outFile.write( "#"*64 + "\n")
         return self
 
 
     # Protected Interface
        
-
     def evaluatePreprocessCallbacks(self):
         """ Evaluate Callbacks before the pipeline """
         for item in self._preCallbacks:
-            item()
+            item.__call__()
         return self
 
     def evaluatePostprocessCallbacks(self):
         """ Evaluate Callbacks after the pipeline """
         for item in self._postCallbacks:
-            item()
+            item.__call__()
         return self
 
     def checkAllManagersAreNotNone(self):
@@ -231,6 +241,6 @@ class Experiment:
             outputPath,
             'mnist64',
             trainSize=0.8,
-            trainEpochs=10,
-            numIters=1)
+            trainEpochs=32,
+            numIters=10)
         return experiment

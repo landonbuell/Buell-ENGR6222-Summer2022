@@ -57,7 +57,7 @@ class RunningHistory:
 
     def getF1Score(self):
         """ Get the Array of F1 Scores """
-        return (self._precision * self._recall) / (self._precision  + self._recall)
+        return 2 * (self._precision * self._recall) / (self._precision  + self._recall)
 
     def getIterationCount(self):
         """ Get the number of iterations """
@@ -108,13 +108,13 @@ class TestResults:
     def getResultsDictionary(self):
         """ Get all Results as a dictionary """
         numClasses = self._outputs.shape[-1]
-        resultMap = { "Labels":       self._labels }
+        resultMap = {   "Labels":       self._labels,
+                        "Predicitions": np.argmax(self._outputs,axis=-1) }      
         for i in range(numClasses):
             key = "class_{0}".format(i)
-            val = resultMap[:,i]
+            val = self._outputs[:,i]
             resultMap.update({key:val})
-
-        return 
+        return resultMap
 
     def update(self,predictions,labels):
         """ Update the testing results """
@@ -127,9 +127,6 @@ class TestResults:
         self._outputs       = np.array([],dtype=np.int16)
         self._labels        = np.array([],dtype=np.int16)
         return self
-
-
-
 
 class NeuralNetworkModel:
     """ Class to build + Compile TF Neural network models """
