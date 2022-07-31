@@ -22,9 +22,10 @@ if __name__ == "__main__":
     EXIT_STATUS = 0
 
     # Experiment
-    outputPath = "..\\..\\outputs\\baselineMnist64_v0"
-    #app = Experiments.Experiment.getBaselineDigits28x28(outputPath)
-    app = Experiments.Experiment.getBaselineDigits8x8(outputPath)
+    outputPath = "..\\..\\outputs\\baselineMnist784_v0"
+    #app = Experiments.Experiment.getBaselineDigits8x8(outputPath)
+    app = Experiments.Experiment.getBaselineDigits28x28(outputPath)
+    
 
     # Run the Experiment + Export Configuration
     app.run()

@@ -49,6 +49,11 @@ DATASET_KEYWORD_TO_MODEL_BUILDER_CALLBACK = \
     "cifar10"   : None,
 }
 
+DATASET_TO_HANDLER = \
+{
+    # Map a Dataset Key to a Class that will handle it's structure
+}
+
         #### CLASS DEFINTIONS ####
 
 class AbstractManager:

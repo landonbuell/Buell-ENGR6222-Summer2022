@@ -244,3 +244,26 @@ class Experiment:
             trainEpochs=32,
             numIters=10)
         return experiment
+
+class DatasetHandler:
+    """ Abstract Base Class to Handle + Parse Out datasets """
+
+    def __init__(self,datasetKey):
+        """ Constructor """
+        self._datasetKey        = DatasetKey
+        self._loaderCallback    = None
+        self._modelCallback     = None
+        
+    def loadDatasetBunch(self):
+        """ Load in the Dataset """
+        if (self._loaderCallback is None):
+            errMsg = "DatasetHandler.loadDataset() - Loader Callback is not set"
+            raise RuntimeError(errMsg)
+        return self._loaderCallback.__call__()
+    
+    def initModel(self):
+        """ Return a constructed tf Neural Network that compliments the dataset """
+        if (self._modelCallback is None):
+            errMsg = "DatasetHandler.initModel() - Model Callback is not set"
+            raise RuntimeError(errMsg)
+        return self._modelCallback.__call__()
