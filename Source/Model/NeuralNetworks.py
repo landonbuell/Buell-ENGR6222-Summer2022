@@ -181,6 +181,8 @@ class NeuralNetworkModel:
 
         # Multilayer Perceptron
         model.add( tf.keras.layers.Flatten() )
+        model.add( tf.keras.layers.Dense(units=64,activation='relu') )
+        model.add( tf.keras.layers.Dense(units=64,activation='relu') )
         model.add( tf.keras.layers.Dense(units=32,activation='relu') )
         model.add( tf.keras.layers.Dense(units=32,activation='relu') )
         model.add( tf.keras.layers.Dense(units=numClasses,activation='softmax') )

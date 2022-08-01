@@ -14,45 +14,10 @@ import os
 import numpy as np
 import pandas as pd
 
-import sklearn.datasets
 from sklearn.model_selection import train_test_split
 
-
+import Experiments
 import NeuralNetworks
-
-        #### FUNCTION DEFINITIONS ####
-
-
-def loadSklearnDigits8x8(datasetManager):
-    """ Load 8x8 digits from Sklearn data set """
-    datasetBunch = sklearn.datasets.load_digits()
-    datasetManager.registerDatasetBunch( datasetBunch )
-    return None
-
-def loadSklearnDigits28x28(datasetManager):
-    """ Load 28 x 28 digits from Sklearn Data set """
-    datasetBunch = sklearn.datasets.fetch_openml("mnist_784")
-    datasetManager.registerDatasetBunch( datasetBunch )
-    return None
-
-DATASET_KEYWORD_TO_LOADER_CALLBACK = \
-{
-    "mnist64"   : loadSklearnDigits8x8 ,
-    "mnist784"  : loadSklearnDigits28x28 ,
-    "cifar10"   : None,
-}
-
-DATASET_KEYWORD_TO_MODEL_BUILDER_CALLBACK = \
-{
-    "mnist64"   : NeuralNetworks.NeuralNetworkModel.getConvNeuralNetworkA,
-    "mnist784"  : NeuralNetworks.NeuralNetworkModel.getConvNeuralNetworkB,
-    "cifar10"   : None,
-}
-
-DATASET_TO_HANDLER = \
-{
-    # Map a Dataset Key to a Class that will handle it's structure
-}
 
         #### CLASS DEFINTIONS ####
 
@@ -96,12 +61,15 @@ class DatasetManager(AbstractManager):
         self._designMatrix  = None
         self._targetLabels  = None
 
-        self._targetNames       = []
+        self._classNames       = []
         self._description       = ""
 
         self._inputShape        = (0,)
         self._numClasses        = 0
         self._numSamples        = 0
+
+        # Register Loader Callback
+        self.registerCallbackFromDatasetCode()
 
               
     def __del__(self):
@@ -128,7 +96,7 @@ class DatasetManager(AbstractManager):
 
     def getTargetNames(self):
         """ Return list of target Names """
-        return self._targetNames
+        return self._classNames
 
     def getDataDescription(self):
         """ Return the dataset description """
@@ -149,37 +117,28 @@ class DatasetManager(AbstractManager):
 
     # Public Interface
 
-    def registerDatasetBunch(self,bunch):
+    def registerDatasetBunch(self,bunchStruct):
         """ Register a Dataset to this instance """
-        self._designMatrix  = bunch.images
-        self._targetLabels  = bunch.target
+        self._designMatrix  = bunchStruct.designMatrix
+        self._targetLabels  = bunchStruct.targetVector
 
-        self._targetNames   = bunch.target_names
-        self._description   = bunch.DESCR
+        self._classNames    = bunchStruct.classNames
+        self._numClasses    = bunchStruct.numClasses
 
-        self._inputShape    = bunch.images.shape[1:]
-        self._numClasses    = bunch.target_names.shape[0]
+        self._numSamples    = bunchStruct.designMatrix.shape[0]
+        self._inputShape    = bunchStruct.designMatrix.shape[1:]
 
-        self._numSamples    = self._designMatrix.shape[0]
-
-        if (len(self._inputShape) < 3):
-            oldShape = self._inputShape
-            newShape = tuple([self._numSamples] + [x for x in oldShape] + [1])
-            self._inputShape = newShape[1:]
-            self._designMatrix = self._designMatrix.reshape(newShape)
-       
+        self._description   = bunchStruct.description       
         return self
 
     def loadDataset(self):
-        """ Load in this last + Return the Output """
-        self.registerCallbackFromDatasetCode()
+        """ Load in this last + Return the Output """      
         if (self._loaderCallback is None):
             msg = "Dataset loading callback not set!"
             raise RuntimeError(msg)
 
         # Invoke the callback to get the dataset + parse the bunch
-        self._loaderCallback.__call__(self)
-           
+        self._loaderCallback.__func__.__call__(self)  
         return self
   
     @staticmethod
@@ -192,12 +151,26 @@ class DatasetManager(AbstractManager):
 
     # Protected Interface
 
+    class DatasetBunchStruct:
+        """ Struct to hold Dataset Meta-Data """
+        
+        def __init__(self):
+            """ Constructor """
+            self.designMatrix   = None
+            self.targetVector   = None
+            self.classNames     = None
+            self.numClasses     = None
+            self.description    = None
+
+        def __del__(self):
+            """ Destructor """
+
     def registerCallbackFromDatasetCode(self):
         """ Choose Callback based on Dataset key """
         successful = False
         codeWord = self._datasetCode
         try:
-            self._loaderCallback = DATASET_KEYWORD_TO_LOADER_CALLBACK[codeWord]
+            self._loaderCallback = Experiments.DatasetHandler.DATASET_KEYWORD_TO_LOADER_CALLBACK[codeWord]
             successful = True
         except KeyError as err:
             msg = "Dataset Keyword {0} was not recognized.".format(codeWord)
@@ -268,7 +241,7 @@ class ConvNeuralNetworkBuilder(AbstractManager):
         successful = False
         codeWord = self._datasetCode
         try:
-            self._modelCallback = DATASET_KEYWORD_TO_MODEL_BUILDER_CALLBACK[codeWord]
+            self._modelCallback = Experiments.DatasetHandler.DATASET_KEYWORD_TO_MODEL_BUILDER_CALLBACK[codeWord]
             successful = True
         except KeyError as err:
             msg = "Dataset Keyword {0} was not recognized.".format(codeWord)
@@ -411,5 +384,3 @@ class ExportManager(AbstractManager):
             os.makedirs(self._outputPath)
         return self
         
-
-

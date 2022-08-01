@@ -11,8 +11,43 @@ File:           PipelineTasks.py
 
 import os
 import numpy as np
+import sklearn.datasets
 
 import Managers
+import NeuralNetworks
+
+        #### FUNCTION DEFINITIONS ####
+
+@staticmethod
+def loadSklearnDigits8x8(datasetManager):
+    """ Load 8x8 digits from Sklearn data set """
+    datasetBunch = sklearn.datasets.load_digits()
+    bunchStruct = Managers.DatasetManager.DatasetBunchStruct()
+    
+    bunchStruct.designMatrix    = datasetBunch.images.reshape(1797,8,8,1)
+    bunchStruct.targetVector    = datasetBunch.target
+    bunchStruct.classNames      = list(datasetBunch.target_names)
+    bunchStruct.numClasses      = len(datasetBunch.target_names)
+    bunchStruct.description     = datasetBunch.DESCR
+
+    datasetManager.registerDatasetBunch( bunchStruct )
+    return None
+
+@staticmethod
+def loadSklearnDigits28x28(datasetManager):
+    """ Load 28 x 28 digits from Sklearn Data set """
+    datasetBunch = sklearn.datasets.fetch_openml("mnist_784",)
+    bunchStruct = Managers.DatasetManager.DatasetBunchStruct()
+    
+    bunchStruct.designMatrix    = datasetBunch.data.to_numpy().reshape(70000,28,28,1)
+    bunchStruct.targetVector    = datasetBunch.target.to_numpy(dtype=np.int16)
+    bunchStruct.classNames      = list(np.unique(bunchStruct.targetVector))
+    bunchStruct.numClasses      = len(bunchStruct.classNames)
+    bunchStruct.description     = datasetBunch.DESCR
+
+    datasetManager.registerDatasetBunch( bunchStruct )
+    return None
+
 
         #### CLASS DEFINTIONS ####
 
@@ -26,8 +61,13 @@ class Experiment:
                  trainEpochs=100,
                  numIters=1):
         """ Constructor """
+        self._outputPath    = outputPath
+        self._datasetCode   = datasetCode
+        self._trainSize     = trainSize
+        self._trainEpochs   = trainEpochs
         self._numIters      = numIters
         self._description   = ""
+        
 
         self._datasetManager    = None      # Class to Loading in Dataset as (x,y) pair
         self._modelManager      = None      # Class to build Model based off of dataset
@@ -37,10 +77,7 @@ class Experiment:
         self._preCallbacks  = []
         self._postCallbacks = []
 
-        self.registerDatasetManager(    Managers.DatasetManager(datasetCode)    )
-        self.registerModelManager(      Managers.ConvNeuralNetworkBuilder(datasetCode)     )
-        self.registerTrainingManager(   Managers.TrainingManager(trainSize,trainEpochs)     )
-        self.registerRundataManager(    Managers.ExportManager(outputPath)      )
+        
 
     def __del__(self):
         """ Destructor """
@@ -148,6 +185,16 @@ class Experiment:
         self._description = descriptionString
         return self
 
+    # Public Interface
+
+    def initialize(self):
+        """ Initialize Experiment for Running """
+        self.registerDatasetManager(    Managers.DatasetManager(self._datasetCode)    )
+        self.registerModelManager(      Managers.ConvNeuralNetworkBuilder(self._datasetCode)     )
+        self.registerTrainingManager(   Managers.TrainingManager(self._trainSize,self._trainEpochs)     )
+        self.registerRundataManager(    Managers.ExportManager(self._outputPath)      )
+        return self
+
     def run(self):
         """ Execute the Experiment """
         self.checkAllManagersAreNotNone()
@@ -183,8 +230,9 @@ class Experiment:
 
     def exportConfiguration(self):
         """ Export experiment configuration details """
-        strFmt = lambda x,y : "{0:<32}{1:<128}\n".format(x,y)
         outputPath = os.path.join(self._rundataManager.getOutputPath(),"config.txt")
+        print("Exporting Configuration to '{0}'...".format(outputPath))
+        strFmt = lambda x,y : "{0:<32}{1:<128}\n".format(x,y)
         with open(outputPath,"w") as outFile:
             outFile.write( "#"*64  + "\n")
             outFile.write( strFmt("OutputPath",    self._rundataManager.getOutputPath()) )
@@ -230,8 +278,8 @@ class Experiment:
             outputPath,
             'mnist784',
             trainSize=0.8,
-            trainEpochs=100,
-            numIters=1)
+            trainEpochs=32,
+            numIters=10)
         return experiment
 
     @staticmethod
@@ -245,8 +293,24 @@ class Experiment:
             numIters=10)
         return experiment
 
+
+
 class DatasetHandler:
     """ Abstract Base Class to Handle + Parse Out datasets """
+
+    DATASET_KEYWORD_TO_LOADER_CALLBACK = \
+    {
+        "mnist64"   : loadSklearnDigits8x8 ,
+        "mnist784"  : loadSklearnDigits28x28 ,
+        "cifar10"   : None,
+    }
+
+    DATASET_KEYWORD_TO_MODEL_BUILDER_CALLBACK = \
+    {
+        "mnist64"   : NeuralNetworks.NeuralNetworkModel.getConvNeuralNetworkA,
+        "mnist784"  : NeuralNetworks.NeuralNetworkModel.getConvNeuralNetworkB,
+        "cifar10"   : None,
+    }
 
     def __init__(self,datasetKey):
         """ Constructor """
@@ -267,3 +331,4 @@ class DatasetHandler:
             errMsg = "DatasetHandler.initModel() - Model Callback is not set"
             raise RuntimeError(errMsg)
         return self._modelCallback.__call__()
+
