@@ -10,6 +10,7 @@ File:           Utilities.py
         #### IMPORTS ####
 
 import os
+from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -61,12 +62,14 @@ class DatasetManager(AbstractManager):
         self._designMatrix  = None
         self._targetLabels  = None
 
-        self._classNames       = []
+        self._classNames        = []
         self._description       = ""
 
         self._inputShape        = (0,)
         self._numClasses        = 0
         self._numSamples        = 0
+
+        self._preprocessCallbacks = []
 
         # Register Loader Callback
         self.registerCallbackFromDatasetCode()
@@ -131,6 +134,11 @@ class DatasetManager(AbstractManager):
         self._description   = bunchStruct.description       
         return self
 
+    def registerDatsetPreprocessCallbacks(self,callback):
+        """ Register a Preprocessing callback """
+        self._preProcessCallbacks.append(callback)
+        return self
+
     def loadDataset(self):
         """ Load in this last + Return the Output """      
         if (self._loaderCallback is None):
@@ -140,7 +148,13 @@ class DatasetManager(AbstractManager):
         # Invoke the callback to get the dataset + parse the bunch
         self._loaderCallback.__func__.__call__(self)  
         return self
-  
+
+    def preprocessDataset(self):
+        """ Evaluate Callbacks before the main loop """
+        for item in self._preprocessCallbacks:
+            item.__call__()
+        return self
+
     @staticmethod
     def oneHotEncode(targetVector,numClasses):
         """ One - Hot encode samples for multi classification """

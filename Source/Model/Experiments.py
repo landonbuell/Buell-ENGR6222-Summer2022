@@ -198,10 +198,11 @@ class Experiment:
     def run(self):
         """ Execute the Experiment """
         self.checkAllManagersAreNotNone()
-        self.evaluatePreprocessCallbacks()
+        
 
         # Main Experiment Body
         self._datasetManager.loadDataset()
+        self.evaluatePreprocessCallbacks()
         seeds = np.random.randint(0,1e6,size=(self._numIters,))
 
         # Number of Times to repeat the experiment
@@ -211,7 +212,8 @@ class Experiment:
             self._modelManager.setSeed(seeds[i])
             self._modelManager.buildModel()
 
-            # Split the Dataset
+            # Split the Dataset 
+            self._datasetManager.preprocessDataset()
             (X_train,X_test,y_train,y_test) = \
                 self._trainManager.splitTrainTest()
 
@@ -278,7 +280,7 @@ class Experiment:
             outputPath,
             'mnist784',
             trainSize=0.8,
-            trainEpochs=32,
+            trainEpochs=4,
             numIters=10)
         return experiment
 
@@ -289,7 +291,7 @@ class Experiment:
             outputPath,
             'mnist64',
             trainSize=0.8,
-            trainEpochs=32,
+            trainEpochs=4,
             numIters=10)
         return experiment
 
