@@ -16,6 +16,8 @@ import sklearn.datasets
 import Managers
 import NeuralNetworks
 
+import DownSampling
+
         #### FUNCTION DEFINITIONS ####
 
 @staticmethod
@@ -74,6 +76,7 @@ class Experiment:
         self._trainManager      = None      # Class to use data to train the models
         self._rundataManager    = None      # Class to track runtime Information
 
+        # Each callback will take a ref to the experiment as an argument
         self._preCallbacks  = []
         self._postCallbacks = []
 
@@ -199,7 +202,6 @@ class Experiment:
         """ Execute the Experiment """
         self.checkAllManagersAreNotNone()
         
-
         # Main Experiment Body
         self._datasetManager.loadDataset()
         self.evaluatePreprocessCallbacks()
@@ -254,13 +256,13 @@ class Experiment:
     def evaluatePreprocessCallbacks(self):
         """ Evaluate Callbacks before the pipeline """
         for item in self._preCallbacks:
-            item.__call__()
+            item.__call__(self)
         return self
 
     def evaluatePostprocessCallbacks(self):
         """ Evaluate Callbacks after the pipeline """
         for item in self._postCallbacks:
-            item.__call__()
+            item.__call__(self)
         return self
 
     def checkAllManagersAreNotNone(self):
@@ -276,6 +278,7 @@ class Experiment:
     @staticmethod
     def getBaselineDigits28x28(outputPath):
         """ Baseline Experiment w/ 28x28 MNIST Digits """
+        outputPath = os.path.join("..\\..\\outputs",outputPath)
         experiment = Experiment(
             outputPath,
             'mnist784',
@@ -287,12 +290,29 @@ class Experiment:
     @staticmethod
     def getBaselineDigits8x8(outputPath):
         """ Baseline Experiment w/ 8x8 MNIST Digits """
+        outputPath = os.path.join("..\\..\\outputs",outputPath)
+        experiment = Experiment(
+            outputPath,
+            'mnist784',
+            trainSize=0.8,
+            trainEpochs=4,
+            numIters=10)
+        return experiment
+
+    @staticmethod
+    def getDownsampledDigits28x28Alpha(outputPath):
+        """ Down Sample Digits, then up-sample """
+        outputPath = os.path.join("..\\..\\outputs",outputPath)
         experiment = Experiment(
             outputPath,
             'mnist64',
             trainSize=0.8,
             trainEpochs=4,
             numIters=10)
+        # Register some callbacks
+        #experiment.registerPreprocessCallbacks( DownSampling.showImages )
+        experiment.registerPreprocessCallbacks( DownSampling.saveImages )
+
         return experiment
 
 

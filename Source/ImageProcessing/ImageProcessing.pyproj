@@ -21,6 +21,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DownSampling.py" />
     <Compile Include="ImageIO.py" />
     <Compile Include="Interpolation.py" />
     <Compile Include="__init__.py" />

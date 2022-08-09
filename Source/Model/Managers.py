@@ -117,6 +117,16 @@ class DatasetManager(AbstractManager):
         """ Return the number of samples in the dataset """
         return self._numSamples
 
+    def setDesignMatrix(self,X):
+        """ Set the Design Matrix """
+        self._designMatrix = X
+        return self
+
+    def setTargetVector(self,y):
+        """ Self the tarfet vector """
+        self._targetLabels = y
+        return self
+
 
     # Public Interface
 
