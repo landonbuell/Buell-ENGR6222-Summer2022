@@ -16,7 +16,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 
-
         #### Downsizing Callbacks ####
 
 def averagePoolStep2Stride1(experiment):

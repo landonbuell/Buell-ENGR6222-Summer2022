@@ -10,7 +10,7 @@ File:           Utilities.py
         #### IMPORTS ####
 
 import os
-from typing import Callable
+
 
 import numpy as np
 import pandas as pd
@@ -68,8 +68,6 @@ class DatasetManager(AbstractManager):
         self._inputShape        = (0,)
         self._numClasses        = 0
         self._numSamples        = 0
-
-        self._preprocessCallbacks = []
 
         # Register Loader Callback
         self.registerCallbackFromDatasetCode()
@@ -144,11 +142,6 @@ class DatasetManager(AbstractManager):
         self._description   = bunchStruct.description       
         return self
 
-    def registerDatsetPreprocessCallbacks(self,callback):
-        """ Register a Preprocessing callback """
-        self._preProcessCallbacks.append(callback)
-        return self
-
     def loadDataset(self):
         """ Load in this last + Return the Output """      
         if (self._loaderCallback is None):
@@ -160,9 +153,14 @@ class DatasetManager(AbstractManager):
         return self
 
     def preprocessDataset(self):
-        """ Evaluate Callbacks before the main loop """
-        for item in self._preprocessCallbacks:
-            item.__call__()
+        """ Apply standard scaling before training/testing """
+        origShape = self._designMatrix.shape
+        tempShape = (self._numSamaples,-1)
+        self._designMatrix.reshape(tempShape)
+        # Create the standard Scaler, use only shallow copies to save RAM
+        scaler = sklearn.preprocessing.StandardScaler(copy=False)
+        self._designMatrix = scaler.fit(self._designMatrix)
+        self._designMatrix.reshape(origShape)
         return self
 
     @staticmethod
@@ -188,6 +186,7 @@ class DatasetManager(AbstractManager):
 
         def __del__(self):
             """ Destructor """
+            pass
 
     def registerCallbackFromDatasetCode(self):
         """ Choose Callback based on Dataset key """

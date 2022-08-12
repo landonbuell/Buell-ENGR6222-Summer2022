@@ -11,7 +11,10 @@ File:           PipelineTasks.py
 
 import os
 import numpy as np
+
 import sklearn.datasets
+import sklearn.preprocessing
+import tensorflow as tf
 
 import Managers
 import NeuralNetworks
@@ -196,6 +199,10 @@ class Experiment:
         self.registerModelManager(      Managers.ConvNeuralNetworkBuilder(self._datasetCode)     )
         self.registerTrainingManager(   Managers.TrainingManager(self._trainSize,self._trainEpochs)     )
         self.registerRundataManager(    Managers.ExportManager(self._outputPath)      )
+       
+        # Register Callbacks for preprocessing
+
+        
         return self
 
     def run(self):
@@ -205,6 +212,8 @@ class Experiment:
         # Main Experiment Body
         self._datasetManager.loadDataset()
         self.evaluatePreprocessCallbacks()
+     
+        self._datasetManager.preprocessDataset()
         seeds = np.random.randint(0,1e6,size=(self._numIters,))
 
         # Number of Times to repeat the experiment
@@ -215,7 +224,6 @@ class Experiment:
             self._modelManager.buildModel()
 
             # Split the Dataset 
-            self._datasetManager.preprocessDataset()
             (X_train,X_test,y_train,y_test) = \
                 self._trainManager.splitTrainTest()
 
@@ -275,10 +283,6 @@ class Experiment:
 
     # Static Methods for Preset Experiments
   
-    
-
-
-
 class DatasetHandler:
     """ Abstract Base Class to Handle + Parse Out datasets """
 
@@ -316,3 +320,8 @@ class DatasetHandler:
             raise RuntimeError(errMsg)
         return self._modelCallback.__call__()
 
+class LoggingCallback(tf.keras.callbacks.Callback):
+    """ Class to Hold Logging Callbacks """
+
+    def on_train_batch_end(batch,logs=None):
+        """ Behavior for the end of each batch """
