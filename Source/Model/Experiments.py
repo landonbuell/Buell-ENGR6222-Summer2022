@@ -274,46 +274,8 @@ class Experiment:
         return self
 
     # Static Methods for Preset Experiments
-
-    @staticmethod
-    def getBaselineDigits28x28(outputPath):
-        """ Baseline Experiment w/ 28x28 MNIST Digits """
-        outputPath = os.path.join("..\\..\\outputs",outputPath)
-        experiment = Experiment(
-            outputPath,
-            'mnist784',
-            trainSize=0.8,
-            trainEpochs=4,
-            numIters=10)
-        return experiment
-
-    @staticmethod
-    def getBaselineDigits8x8(outputPath):
-        """ Baseline Experiment w/ 8x8 MNIST Digits """
-        outputPath = os.path.join("..\\..\\outputs",outputPath)
-        experiment = Experiment(
-            outputPath,
-            'mnist784',
-            trainSize=0.8,
-            trainEpochs=4,
-            numIters=10)
-        return experiment
-
-    @staticmethod
-    def getDownsampledDigits28x28Alpha(outputPath):
-        """ Down Sample Digits, then up-sample """
-        outputPath = os.path.join("..\\..\\outputs",outputPath)
-        experiment = Experiment(
-            outputPath,
-            'mnist64',
-            trainSize=0.8,
-            trainEpochs=4,
-            numIters=10)
-        # Register some callbacks
-        #experiment.registerPreprocessCallbacks( DownSampling.showImages )
-        experiment.registerPreprocessCallbacks( DownSampling.saveImages )
-
-        return experiment
+  
+    
 
 
 

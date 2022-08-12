@@ -12,7 +12,7 @@ File:           Utilities.py
 import os
 import sys
 
-import Experiments
+import PresetExperiments
 
         #### MAIN EXECUTABLE ####
 
@@ -22,10 +22,13 @@ if __name__ == "__main__":
     EXIT_STATUS = 0
 
     # Experiment
-    outputPath = "alphaMnist784_v0"
-    #app = Experiments.Experiment.getBaselineDigits8x8(outputPath)
-    #app = Experiments.Experiment.getBaselineDigits28x28(outputPath)
-    app = Experiments.Experiment.getDownsampledDigits28x28Alpha(outputPath)
+    outputPath = "baselineMnist784_v0"
+    app = PresetExperiments.getBaselineDigits28x28(outputPath)
+    #app = PresetExperiments.getCaseStudy1(outputPath)
+    #app = PresetExperiments.getCaseStudy2(outputPath)
+    #app = PresetExperiments.getCaseStudy3(outputPath)
+    #app = PresetExperiments.getCaseStudy4(outputPath)
+
     
     # Run the Experiment + Export Configuration
     app.initialize()
