@@ -14,7 +14,7 @@ import os
 import sys
 
 import Experiments
-import DownSampling
+import Callbacks
 
         #### FUNCTION DEFINITIONS ####
 

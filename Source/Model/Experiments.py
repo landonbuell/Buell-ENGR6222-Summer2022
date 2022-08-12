@@ -13,13 +13,12 @@ import os
 import numpy as np
 
 import sklearn.datasets
-import sklearn.preprocessing
 import tensorflow as tf
 
 import Managers
 import NeuralNetworks
 
-import DownSampling
+import Callbacks
 
         #### FUNCTION DEFINITIONS ####
 
@@ -73,7 +72,7 @@ class Experiment:
         self._numIters      = numIters
         self._description   = ""
         
-
+        # Manager
         self._datasetManager    = None      # Class to Loading in Dataset as (x,y) pair
         self._modelManager      = None      # Class to build Model based off of dataset
         self._trainManager      = None      # Class to use data to train the models
@@ -82,8 +81,6 @@ class Experiment:
         # Each callback will take a ref to the experiment as an argument
         self._preCallbacks  = []
         self._postCallbacks = []
-
-        
 
     def __del__(self):
         """ Destructor """
@@ -323,5 +320,13 @@ class DatasetHandler:
 class LoggingCallback(tf.keras.callbacks.Callback):
     """ Class to Hold Logging Callbacks """
 
-    def on_train_batch_end(batch,logs=None):
+    def __init__(self,experiment):
+        """ Constructor """
+        super().__init__()
+        self._experiment = experiment
+
+    def on_train_batch_end(self,batch,logs=None):
         """ Behavior for the end of each batch """
+        rundataMgr = self._experiment.getRundataManager()
+        rundataMgr.updateTrainingHistory(logs)
+        return None

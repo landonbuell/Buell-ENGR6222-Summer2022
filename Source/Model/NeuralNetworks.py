@@ -75,12 +75,12 @@ class RunningHistory:
 
     # Public Interface
 
-    def update(self,history):
+    def update(self,batchLog):
         """ Update the state of this class w/ a history object """
-        self._losses    = np.append(self._losses,   history.history['loss'])
-        self._accuracy  = np.append(self._accuracy, history.history['accuracy'])
-        self._precision = np.append(self._precision,history.history['precision'])
-        self._recall    = np.append(self._recall,   history.history['recall'])
+        self._losses    = np.append(self._losses,   batchLog['loss'])
+        self._accuracy  = np.append(self._accuracy, batchLog['accuracy'])
+        self._precision = np.append(self._precision,batchLog['precision'])
+        self._recall    = np.append(self._recall,   batchLog['recall'])
         self._iterCount += 1
         return self
 

@@ -15,6 +15,7 @@ import os
 import numpy as np
 import pandas as pd
 
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
 import Experiments
@@ -155,12 +156,13 @@ class DatasetManager(AbstractManager):
     def preprocessDataset(self):
         """ Apply standard scaling before training/testing """
         origShape = self._designMatrix.shape
-        tempShape = (self._numSamaples,-1)
-        self._designMatrix.reshape(tempShape)
+        tempShape = (self._numSamples,-1)
         # Create the standard Scaler, use only shallow copies to save RAM
-        scaler = sklearn.preprocessing.StandardScaler(copy=False)
-        self._designMatrix = scaler.fit(self._designMatrix)
-        self._designMatrix.reshape(origShape)
+        scaler = StandardScaler(copy=False)
+        # Reshape the design matrix, fit it, and then shape back
+        self._designMatrix = self._designMatrix.reshape(tempShape)
+        scaler.fit(self._designMatrix)
+        self._designMatrix = self._designMatrix.reshape(origShape)
         return self
 
     @staticmethod
@@ -309,15 +311,20 @@ class TrainingManager(AbstractManager):
 
     def trainModel(self,X,y,iterNum):
         """ Train a Model w/ X + y Data """
-        model = self.getOwner().getModelManager().getModel()
-        rundataMgr = self.getOwner().getRundataManager()
+        owner = self.getOwner()         # Experiment that owns this manager
+        loggingCallback = Experiments.LoggingCallback(owner)
+        model = owner.getModelManager().getModel()
+        rundataMgr = owner.getRundataManager()
 
         numClasses = self.getOwner().getDatasetManager().getNumClasses()
         y = DatasetManager.oneHotEncode(y,numClasses)
 
         # Train + Get History
-        history = model.fit(X,y,batch_size=self._batchSize,epochs=self._trainEpochs)
-        rundataMgr.updateTrainingHistory(history)
+        history = model.fit(X,y,
+                            batch_size=self._batchSize,
+                            epochs=self._trainEpochs,
+                            callbacks=loggingCallback)
+        #rundataMgr.updateTrainingHistory(history)
         rundataMgr.exportTrainingHistory("trainingHistory_{0}.csv".format(iterNum))
 
         return self
