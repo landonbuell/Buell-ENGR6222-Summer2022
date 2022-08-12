@@ -165,6 +165,12 @@ class DatasetManager(AbstractManager):
         self._designMatrix = self._designMatrix.reshape(origShape)
         return self
 
+    def buildEmptyDesignMatrix(self):
+        """ Build an Empty Design Matrix to match the intended shape """
+        matrixShape = [self._numSamples] + [x for x in self._inputShape]
+        X = np.zeros(shape=matrixShape)
+        return X
+
     @staticmethod
     def oneHotEncode(targetVector,numClasses):
         """ One - Hot encode samples for multi classification """

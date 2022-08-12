@@ -17,6 +17,8 @@ import tensorflow as tf
 
         #### RUNTIME CONSTANTS ####
 
+EPSILON = np.array([1e-8],dtype=np.float32)
+
 METRICS = [ tf.keras.metrics.Precision(),
             tf.keras.metrics.Recall(),
             tf.keras.metrics.Accuracy() ]
@@ -57,7 +59,7 @@ class RunningHistory:
 
     def getF1Score(self):
         """ Get the Array of F1 Scores """
-        return 2 * (self._precision * self._recall) / (self._precision  + self._recall)
+        return 2 * (self._precision * self._recall) / (self._precision  + self._recall + EPSILON)
 
     def getIterationCount(self):
         """ Get the number of iterations """

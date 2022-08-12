@@ -50,8 +50,11 @@ def getCaseStudy1(outputPath):
         trainEpochs=2,
         numIters=10)
     # Register some callbacks
-    #experiment.registerPreprocessCallbacks( DownSampling.showImages )
-    #experiment.registerPreprocessCallbacks( DownSampling.saveImages )
+    #experiment.registerPreprocessCallbacks( Callbacks.showImages )
+    experiment.registerPreprocessCallbacks( Callbacks.averagePoolSize2Stride1 )
+    #experiment.registerPreprocessCallbacks( Callbacks.showImages )
+    experiment.registerPreprocessCallbacks( Callbacks.interpolateBilinear )
+    experiment.registerPreprocessCallbacks( Callbacks.showImages )
     return experiment
 
 
@@ -65,8 +68,9 @@ def getCaseStudy2(outputPath):
         trainEpochs=2,
         numIters=10)
     # Register some callbacks
-    #experiment.registerPreprocessCallbacks( DownSampling.showImages )
-    #experiment.registerPreprocessCallbacks( DownSampling.saveImages )
+    experiment.registerPreprocessCallbacks( Callbacks.showImages )
+    experiment.registerPreprocessCallbacks( Callbacks.averagePoolSize2Stride1 )
+    experiment.registerPreprocessCallbacks( Callbacks.showImages )
     return experiment
 
 def getCaseStudy3(outputPath):
@@ -79,8 +83,9 @@ def getCaseStudy3(outputPath):
         trainEpochs=2,
         numIters=10)
     # Register some callbacks
-    #experiment.registerPreprocessCallbacks( DownSampling.showImages )
-    #experiment.registerPreprocessCallbacks( DownSampling.saveImages )
+    experiment.registerPreprocessCallbacks( Callbacks.showImages )
+    experiment.registerPreprocessCallbacks( Callbacks.averagePoolSize2Stride1 )
+    experiment.registerPreprocessCallbacks( Callbacks.showImages )
     return experiment
 
 def getCaseStudy4(outputPath):
@@ -93,6 +98,7 @@ def getCaseStudy4(outputPath):
         trainEpochs=2,
         numIters=10)
     # Register some callbacks
-    #experiment.registerPreprocessCallbacks( DownSampling.showImages )
-    #experiment.registerPreprocessCallbacks( DownSampling.saveImages )
+    experiment.registerPreprocessCallbacks( Callbacks.showImages )
+    experiment.registerPreprocessCallbacks( Callbacks.averagePoolSize2Stride1 )
+    experiment.registerPreprocessCallbacks( Callbacks.showImages )
     return experiment

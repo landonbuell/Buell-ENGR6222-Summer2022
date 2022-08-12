@@ -16,11 +16,35 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 
+import Interpolation
+
         #### Downsizing Callbacks ####
 
-def averagePoolStep2Stride1(experiment):
+def averagePoolSize2Stride1(experiment):
     """ Down Sample Input Images using 2 x 2 pooling  w/ 1 x 1 step"""
     windowSize = (2,2)
+    windowStep = (1,1)
+    poolingLayer = tf.keras.layers.AveragePooling2D(
+        pool_size=windowSize,strides=windowStep)
+    X = experiment.getDatasetManager().getDesignMatrix()
+    X = poolingLayer.call( X )
+    experiment.getDatasetManager().setDesignMatrix(X)
+    return None
+
+def averagePoolSize2Stride2(experiment):
+    """ Down Sample Input Images using 2 x 2 pooling  w/ 1 x 1 step"""
+    windowSize = (2,2)
+    windowStep = (2,2)
+    poolingLayer = tf.keras.layers.AveragePooling2D(
+        pool_size=windowSize,strides=windowStep)
+    X = experiment.getDesignMatrix()
+    X = poolingLayer.call( X )
+    experiment.setDesignMatrix(X)
+    return None
+
+def averagePoolSize3Stride1(experiment):
+    """ Down Sample Input Images using 2 x 2 pooling  w/ 1 x 1 step"""
+    windowSize = (3,3)
     windowStep = (1,1)
     poolingLayer = tf.keras.layers.AveragePooling2D(
         pool_size=windowSize,strides=windowStep)
@@ -29,29 +53,7 @@ def averagePoolStep2Stride1(experiment):
     experiment.setDesignMatrix(X)
     return None
 
-def averagePoolStep2Stride2(experiment):
-    """ Down Sample Input Images using 2 x 2 pooling  w/ 1 x 1 step"""
-    windowSize = (2,2)
-    windowStep = (2,2)
-    poolingLayer = tf.keras.layers.AveragePooling2D(
-        pool_size=windowSize,strides=windowStep)
-    X = experiment.getDesignMatrix()
-    X = poolingLayer.call( X )
-    experiment.setDesignMatrix(X)
-    return None
-
-def averagePoolStep3Stride1(experiment):
-    """ Down Sample Input Images using 2 x 2 pooling  w/ 1 x 1 step"""
-    windowSize = (3,3)
-    windowStep = (1,1)
-    poolingLayer = tf.keras.layers.AveragePooling2D(
-        pool_size=windowSize,strides=windowStep)
-    X = experiment.getDesignMatrix()
-    X = poolingLayer.call( X )
-    experiment.setDesignMatrix(X)
-    return None
-
-def averagePoolStep3Stride2(experiment):
+def averagePoolSize3Stride2(experiment):
     """ Down Sample Input Images using 2 x 2 pooling  w/ 1 x 1 step"""
     windowSize = (3,3)
     windowStep = (2,2)
@@ -62,18 +64,37 @@ def averagePoolStep3Stride2(experiment):
     experiment.setDesignMatrix(X)
     return None
 
-def averagePoolStep3Stride2(experiment):
-    """ Down Sample Input Images using 2 x 2 pooling  w/ 1 x 1 step"""
-    windowSize = (3,3)
-    windowStep = (2,2)
-    poolingLayer = tf.keras.layers.AveragePooling2D(
-        pool_size=windowSize,strides=windowStep)
-    X = experiment.getDesignMatrix()
-    X = poolingLayer.call( X )
-    experiment.setDesignMatrix(X)
+        #### Interpolation Callbacks ####
+
+def interpolateBilinear(experiment):
+    """ Perform Bilinear Interpolation """
+    numSamples = experiment.getDatasetManager().getNumSamples()
+    inputShape = experiment.getDatasetManager().getInputShape()
+    currShape = experiment.getDatasetManager().getDesignMatrix().shape
+
+    # Existing Design Matrix + Empty one to populate
+    X = experiment.getDatasetManager().getDesignMatrix()
+    Y = experiment.getDatasetManager().buildEmptyDesignMatrix()
+
+    # Build up data for interpolation 
+    xAxisOld = np.linspace(0,inputShape[0],currShape[1])
+    yAxisOld = np.linspace(0,inputShape[1],currShape[2])
+    xAxisNew = np.linspace(0,inputShape[0],inputShape[0])
+    yAxisNew = np.linspace(0,inputShape[1],inputShape[1])
+
+    # Peform Interpolation
+    for i in range(numSamples):
+        x = X[i]
+        interpFunc = Interpolation.interpolate.interp2d(
+            xAxisOld,yAxisOld,x)   # Get interp function
+        y = interpFunc(xAxisNew,yAxisNew).reshape(inputShape)
+        Y[i] = y
+    # Assign X back to Design Matrix
+    experiment.getDatasetManager().setDesignMatrix(Y)
+    X = None
     return None
 
-        #### Export Images ####
+        #### Export + Show Images ####
 
 def showImages(experiment,n=10):
     """ Show the first 'n' samples in the dataset """
@@ -84,7 +105,7 @@ def showImages(experiment,n=10):
         plt.close()
     return None
 
-def saveImages(experiment,n=10):
+def saveImages(experiment,n=2):
     """ Log the first 'n' samples in the dataset """
     X = experiment.getDatasetManager().getDesignMatrix()
     for ii in range(0,n,1):
