@@ -22,7 +22,6 @@ import Callbacks
 
         #### FUNCTION DEFINITIONS ####
 
-@staticmethod
 def loadSklearnDigits8x8(datasetManager):
     """ Load 8x8 digits from Sklearn data set """
     datasetBunch = sklearn.datasets.load_digits()
@@ -37,13 +36,12 @@ def loadSklearnDigits8x8(datasetManager):
     datasetManager.registerDatasetBunch( bunchStruct )
     return None
 
-@staticmethod
 def loadSklearnDigits28x28(datasetManager):
     """ Load 28 x 28 digits from Sklearn Data set """
     datasetBunch = sklearn.datasets.fetch_openml("mnist_784",)
     bunchStruct = Managers.DatasetManager.DatasetBunchStruct()
     
-    bunchStruct.designMatrix    = datasetBunch.data.to_numpy().reshape(70000,28,28,1)
+    bunchStruct.designMatrix    = datasetBunch.data.to_numpy(dtype=np.float32).reshape(70000,28,28,1)
     bunchStruct.targetVector    = datasetBunch.target.to_numpy(dtype=np.int16)
     bunchStruct.classNames      = list(np.unique(bunchStruct.targetVector))
     bunchStruct.numClasses      = len(bunchStruct.classNames)

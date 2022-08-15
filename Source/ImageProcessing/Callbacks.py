@@ -100,20 +100,36 @@ def showImages(experiment,n=10):
     """ Show the first 'n' samples in the dataset """
     X = experiment.getDatasetManager().getDesignMatrix()
     for ii in range(0,n,1):
+        plt.figure(figsize=(16,12),edgecolor='gray',tight_layout=True)
         plt.imshow(X[ii],cmap=plt.cm.gray)
+        plt.xticks(np.arange(X[ii].shape[0]))
+        plt.yticks(np.arange(X[ii].shape[1]))
         plt.show()
         plt.close()
     return None
 
-def saveImages(experiment,n=2):
+def saveImages(experiment,name="baseline",n=2):
     """ Log the first 'n' samples in the dataset """
     X = experiment.getDatasetManager().getDesignMatrix()
     for ii in range(0,n,1):
-        figName = "sample{0}.png".format(ii)
+        figName = "{0}{1}.png".format(name,ii)
         outpath = os.path.join(experiment.getOutputPath(),figName)
-        image = X[ii]
         plt.figure(figsize=(16,12),edgecolor='gray',tight_layout=True)
         plt.imshow(X[ii],cmap=plt.cm.gray)
+        plt.xticks(np.arange(X[ii].shape[0]))
+        plt.yticks(np.arange(X[ii].shape[1]))
         plt.savefig(outpath)
         plt.close()
     return None
+
+def saveImageBaseline(experiment,n=2):
+    """ Save first 'n' samples w/ baseline tag """
+    return saveImages(experiment,"baseline",n)
+
+def saveImageDownsized(experiment,n=2):
+    """ Save first 'n' samples w/ baseline tag """
+    return saveImages(experiment,"downsized",n)
+
+def saveImageUpscaled(experiment,n=2):
+    """ Save first 'n' samples w/ baseline tag """
+    return saveImages(experiment,"interpolated",n)

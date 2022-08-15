@@ -150,7 +150,7 @@ class DatasetManager(AbstractManager):
             raise RuntimeError(msg)
 
         # Invoke the callback to get the dataset + parse the bunch
-        self._loaderCallback.__func__.__call__(self)  
+        self._loaderCallback.__call__(self)  
         return self
 
     def preprocessDataset(self):

@@ -22,9 +22,9 @@ if __name__ == "__main__":
     EXIT_STATUS = 0
 
     # Experiment
-    outputPath = "caseStudy1_Mnist784_v0"
-    #app = PresetExperiments.getBaselineDigits28x28(outputPath)
-    app = PresetExperiments.getCaseStudy1(outputPath)
+    outputPath = "baseline_Mnist784_v0"
+    app = PresetExperiments.getBaselineDigits28x28(outputPath)
+    #app = PresetExperiments.getCaseStudy1(outputPath)
     #app = PresetExperiments.getCaseStudy2(outputPath)
     #app = PresetExperiments.getCaseStudy3(outputPath)
     #app = PresetExperiments.getCaseStudy4(outputPath)
