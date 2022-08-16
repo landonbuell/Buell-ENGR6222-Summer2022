@@ -310,10 +310,12 @@ class TrainingManager(AbstractManager):
 
     def splitTrainTest(self):
         """ Perform Train-Test Split """
+        seed = self.getOwner().getModelManager().getSeed()
         return train_test_split(
             self.getOwner().getDatasetManager().getDesignMatrix(),
             self.getOwner().getDatasetManager().getTargetLabels(),
-            train_size=self._trainSize)
+            train_size=self._trainSize,
+            random_state=seed)
 
     def trainModel(self,X,y,iterNum):
         """ Train a Model w/ X + y Data """

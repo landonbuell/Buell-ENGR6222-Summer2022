@@ -35,8 +35,8 @@ def getBaselineDigits28x28(outputPath):
         outputPath,
         'mnist784',
         trainSize=0.8,
-        numIters=10
-    experiment.registerPreprocessCallback(saveImageBaseline)
+        numIters=10)
+    experiment.registerPreprocessCallback( Callbacks.saveImageBaseline )
     return experiment
 
 def getCaseStudy1(outputPath):
@@ -51,7 +51,7 @@ def getCaseStudy1(outputPath):
     experiment.registerPreprocessCallback( Callbacks.saveImageBaseline )
     experiment.registerPreprocessCallback( Callbacks.averagePoolSize2Stride1 )
     experiment.registerPreprocessCallback( Callbacks.saveImageDownsized)
-    experiment.registerPreprocessCallback( Callbacks.interpolateBilinear )
+    experiment.registerPreprocessCallback( Callbacks.interpolateLinearSpline )
     experiment.registerPreprocessCallback( Callbacks.saveImageUpscaled )
     return experiment
 
@@ -68,7 +68,7 @@ def getCaseStudy2(outputPath):
     experiment.registerPreprocessCallback( Callbacks.saveImageBaseline )
     experiment.registerPreprocessCallback( Callbacks.averagePoolSize2Stride2 )
     experiment.registerPreprocessCallback( Callbacks.saveImageDownsized)
-    experiment.registerPreprocessCallback( Callbacks.interpolateBilinear )
+    experiment.registerPreprocessCallback( Callbacks.interpolateLinearSpline )
     experiment.registerPreprocessCallback( Callbacks.saveImageUpscaled )
     return experiment
 
@@ -84,7 +84,7 @@ def getCaseStudy3(outputPath):
     experiment.registerPreprocessCallback( Callbacks.saveImageBaseline )
     experiment.registerPreprocessCallback( Callbacks.averagePoolSize3Stride1 )
     experiment.registerPreprocessCallback( Callbacks.saveImageDownsized)
-    experiment.registerPreprocessCallback( Callbacks.interpolateBilinear )
+    experiment.registerPreprocessCallback( Callbacks.interpolateLinearSpline )
     experiment.registerPreprocessCallback( Callbacks.saveImageUpscaled )
     return experiment
 
@@ -100,6 +100,6 @@ def getCaseStudy4(outputPath):
     experiment.registerPreprocessCallback( Callbacks.saveImageBaseline )
     experiment.registerPreprocessCallback( Callbacks.averagePoolSize3Stride2 )
     experiment.registerPreprocessCallback( Callbacks.saveImageDownsized)
-    experiment.registerPreprocessCallback( Callbacks.interpolateBilinear )
+    experiment.registerPreprocessCallback( Callbacks.interpolateLinearSpline )
     experiment.registerPreprocessCallback( Callbacks.saveImageUpscaled )
     return experiment

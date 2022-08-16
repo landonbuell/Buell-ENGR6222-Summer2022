@@ -39,11 +39,11 @@ def averagePoolSize2Stride2(experiment):
     windowStep = (2,2)
     poolingLayer = tf.keras.layers.AveragePooling2D(
         pool_size=windowSize,strides=windowStep)
-    X = experiment.getDesignMatrix()
+    X = experiment.getDatasetManager().getDesignMatrix()
     print("X.shape -> ",X.shape)
     X = poolingLayer.call( X )
     print("X.shape -> ",X.shape)
-    experiment.setDesignMatrix(X)
+    experiment.getDatasetManager().setDesignMatrix(X)
     return None
 
 def averagePoolSize3Stride1(experiment):
@@ -52,11 +52,11 @@ def averagePoolSize3Stride1(experiment):
     windowStep = (1,1)
     poolingLayer = tf.keras.layers.AveragePooling2D(
         pool_size=windowSize,strides=windowStep)
-    X = experiment.getDesignMatrix()
+    X = experiment.getDatasetManager().getDesignMatrix()
     print("X.shape -> ",X.shape)
     X = poolingLayer.call( X )
     print("X.shape -> ",X.shape)
-    experiment.setDesignMatrix(X)
+    experiment.getDatasetManager().setDesignMatrix(X)
     return None
 
 def averagePoolSize3Stride2(experiment):
@@ -65,16 +65,16 @@ def averagePoolSize3Stride2(experiment):
     windowStep = (2,2)
     poolingLayer = tf.keras.layers.AveragePooling2D(
         pool_size=windowSize,strides=windowStep)
-    X = experiment.getDesignMatrix()
+    X = experiment.getDatasetManager().getDesignMatrix()
     print("X.shape -> ",X.shape)
     X = poolingLayer.call( X )
     print("X.shape -> ",X.shape)
-    experiment.setDesignMatrix(X)
+    experiment.getDatasetManager().setDesignMatrix(X)
     return None
 
         #### Interpolation Callbacks ####
 
-def interpolateBilinear(experiment):
+def interpolateLinearSpline(experiment):
     """ Perform Bilinear Interpolation """
     numSamples = experiment.getDatasetManager().getNumSamples()
     inputShape = experiment.getDatasetManager().getInputShape()
