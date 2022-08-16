@@ -25,7 +25,6 @@ def getBaselineDigits8x8(outputPath):
         outputPath,
         'mnist784',
         trainSize=0.8,
-        trainEpochs=2,
         numIters=10)
     return experiment
 
@@ -36,8 +35,8 @@ def getBaselineDigits28x28(outputPath):
         outputPath,
         'mnist784',
         trainSize=0.8,
-        trainEpochs=2,
-        numIters=10)
+        numIters=10
+    experiment.registerPreprocessCallback(saveImageBaseline)
     return experiment
 
 def getCaseStudy1(outputPath):
@@ -47,14 +46,13 @@ def getCaseStudy1(outputPath):
         outputPath,
         'mnist784',
         trainSize=0.8,
-        trainEpochs=2,
         numIters=10)
     # Register some callbacks
-    #experiment.registerPreprocessCallbacks( Callbacks.showImages )
-    experiment.registerPreprocessCallbacks( Callbacks.averagePoolSize2Stride1 )
-    #experiment.registerPreprocessCallbacks( Callbacks.showImages )
-    experiment.registerPreprocessCallbacks( Callbacks.interpolateBilinear )
-    experiment.registerPreprocessCallbacks( Callbacks.showImages )
+    experiment.registerPreprocessCallback( Callbacks.saveImageBaseline )
+    experiment.registerPreprocessCallback( Callbacks.averagePoolSize2Stride1 )
+    experiment.registerPreprocessCallback( Callbacks.saveImageDownsized)
+    experiment.registerPreprocessCallback( Callbacks.interpolateBilinear )
+    experiment.registerPreprocessCallback( Callbacks.saveImageUpscaled )
     return experiment
 
 
@@ -65,12 +63,13 @@ def getCaseStudy2(outputPath):
         outputPath,
         'mnist784',
         trainSize=0.8,
-        trainEpochs=2,
         numIters=10)
     # Register some callbacks
-    experiment.registerPreprocessCallbacks( Callbacks.showImages )
-    experiment.registerPreprocessCallbacks( Callbacks.averagePoolSize2Stride1 )
-    experiment.registerPreprocessCallbacks( Callbacks.showImages )
+    experiment.registerPreprocessCallback( Callbacks.saveImageBaseline )
+    experiment.registerPreprocessCallback( Callbacks.averagePoolSize2Stride2 )
+    experiment.registerPreprocessCallback( Callbacks.saveImageDownsized)
+    experiment.registerPreprocessCallback( Callbacks.interpolateBilinear )
+    experiment.registerPreprocessCallback( Callbacks.saveImageUpscaled )
     return experiment
 
 def getCaseStudy3(outputPath):
@@ -80,12 +79,13 @@ def getCaseStudy3(outputPath):
         outputPath,
         'mnist784',
         trainSize=0.8,
-        trainEpochs=2,
         numIters=10)
     # Register some callbacks
-    experiment.registerPreprocessCallbacks( Callbacks.showImages )
-    experiment.registerPreprocessCallbacks( Callbacks.averagePoolSize2Stride1 )
-    experiment.registerPreprocessCallbacks( Callbacks.showImages )
+    experiment.registerPreprocessCallback( Callbacks.saveImageBaseline )
+    experiment.registerPreprocessCallback( Callbacks.averagePoolSize3Stride1 )
+    experiment.registerPreprocessCallback( Callbacks.saveImageDownsized)
+    experiment.registerPreprocessCallback( Callbacks.interpolateBilinear )
+    experiment.registerPreprocessCallback( Callbacks.saveImageUpscaled )
     return experiment
 
 def getCaseStudy4(outputPath):
@@ -95,10 +95,11 @@ def getCaseStudy4(outputPath):
         outputPath,
         'mnist784',
         trainSize=0.8,
-        trainEpochs=2,
         numIters=10)
     # Register some callbacks
-    experiment.registerPreprocessCallbacks( Callbacks.showImages )
-    experiment.registerPreprocessCallbacks( Callbacks.averagePoolSize2Stride1 )
-    experiment.registerPreprocessCallbacks( Callbacks.showImages )
+    experiment.registerPreprocessCallback( Callbacks.saveImageBaseline )
+    experiment.registerPreprocessCallback( Callbacks.averagePoolSize3Stride2 )
+    experiment.registerPreprocessCallback( Callbacks.saveImageDownsized)
+    experiment.registerPreprocessCallback( Callbacks.interpolateBilinear )
+    experiment.registerPreprocessCallback( Callbacks.saveImageUpscaled )
     return experiment

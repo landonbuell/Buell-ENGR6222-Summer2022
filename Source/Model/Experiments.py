@@ -60,8 +60,8 @@ class Experiment:
                  outputPath,
                  datasetCode,
                  trainSize=0.8,
-                 trainEpochs=100,
-                 numIters=1):
+                 trainEpochs=1,
+                 numIters=10):
         """ Constructor """
         self._outputPath    = outputPath
         self._datasetCode   = datasetCode
@@ -147,12 +147,12 @@ class Experiment:
 
     # Public Interface
 
-    def registerPreprocessCallbacks(self,callback):
+    def registerPreprocessCallback(self,callback):
         """ Register a method to be evaluated before the pipeline """
         self._preCallbacks.append(callback)
         return self
 
-    def registerPostprocessCallbacks(self,callback):
+    def registerPostprocessCallback(self,callback):
         """ Register a method to be evaluated after the pipeline """
         self._postCallbacks.append(callback)
         return self
@@ -193,11 +193,7 @@ class Experiment:
         self.registerDatasetManager(    Managers.DatasetManager(self._datasetCode)    )
         self.registerModelManager(      Managers.ConvNeuralNetworkBuilder(self._datasetCode)     )
         self.registerTrainingManager(   Managers.TrainingManager(self._trainSize,self._trainEpochs)     )
-        self.registerRundataManager(    Managers.ExportManager(self._outputPath)      )
-       
-        # Register Callbacks for preprocessing
-
-        
+        self.registerRundataManager(    Managers.ExportManager(self._outputPath)      )        
         return self
 
     def run(self):
@@ -206,9 +202,9 @@ class Experiment:
         
         # Main Experiment Body
         self._datasetManager.loadDataset()
-        self.evaluatePreprocessCallbacks()
-     
         self._datasetManager.preprocessDataset()
+
+        self.evaluatePreprocessCallbacks()
         seeds = np.random.randint(0,1e6,size=(self._numIters,))
 
         # Number of Times to repeat the experiment

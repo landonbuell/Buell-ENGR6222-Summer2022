@@ -21,18 +21,30 @@ if __name__ == "__main__":
     # Setup
     EXIT_STATUS = 0
 
-    # Experiment
-    outputPath = "baseline_Mnist784_v0"
-    app = PresetExperiments.getBaselineDigits28x28(outputPath)
-    #app = PresetExperiments.getCaseStudy1(outputPath)
-    #app = PresetExperiments.getCaseStudy2(outputPath)
-    #app = PresetExperiments.getCaseStudy3(outputPath)
-    #app = PresetExperiments.getCaseStudy4(outputPath)
+    # Experiment Output Paths
+    outputPaths = [
+        "baseline_Mnist784_v0",
+        "caseStudy1_Mnist784_v0",
+        "caseStudy2_Mnist784_v0",
+        "caseStudy3_Mnist784_v0",
+        "caseStudy4_Mnist784_v0"]
 
-    # Run the Experiment + Export Configuration
-    app.initialize()
-    app.run()
-    app.exportConfiguration()
+    # Experiment Instances
+    experimentCallbacks = [
+        PresetExperiments.getBaselineDigits28x28,
+        PresetExperiments.getCaseStudy1,
+        PresetExperiments.getCaseStudy2,
+        PresetExperiments.getCaseStudy3,
+        PresetExperiments.getCaseStudy4 ]
+
+    # For Each Experiment
+    for outputPath,callback in zip(outputPaths,experimentCallbacks):
+        app = callback.__call__(outputPath)
+
+        # Run the Experiment + Export Configuration
+        app.initialize()
+        app.run()
+        app.exportConfiguration()
 
     # Exit
     sys.exit()
