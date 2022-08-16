@@ -1,0 +1,10 @@
+################################################################
+OutputPath                      C:\Users\lando\Documents\GitHub\Buell-ENGR6222-Summer2022\outputs\caseStudy2_Mnist784_v0                                        
+DatasetKey                      mnist784                                                                                                                        
+TrainSize                       0.8                                                                                                                             
+TestSize                        0.19999999999999996                                                                                                             
+NumEpochs                       1                                                                                                                               
+NumIters                        10                                                                                                                              
+NumSamples                      70000                                                                                                                           
+NumClasses                      10                                                                                                                              
+################################################################
