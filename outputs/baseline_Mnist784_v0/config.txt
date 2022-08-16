@@ -3,7 +3,7 @@ OutputPath                      C:\Users\lando\Documents\GitHub\Buell-ENGR6222-S
 DatasetKey                      mnist784                                                                                                                        
 TrainSize                       0.8                                                                                                                             
 TestSize                        0.19999999999999996                                                                                                             
-NumEpochs                       2                                                                                                                               
+NumEpochs                       1                                                                                                                               
 NumIters                        10                                                                                                                              
 NumSamples                      70000                                                                                                                           
 NumClasses                      10                                                                                                                              

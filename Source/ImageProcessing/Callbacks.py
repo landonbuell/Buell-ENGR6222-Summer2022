@@ -27,7 +27,9 @@ def averagePoolSize2Stride1(experiment):
     poolingLayer = tf.keras.layers.AveragePooling2D(
         pool_size=windowSize,strides=windowStep)
     X = experiment.getDatasetManager().getDesignMatrix()
+    print("X.shape -> ",X.shape)
     X = poolingLayer.call( X )
+    print("X.shape -> ",X.shape)
     experiment.getDatasetManager().setDesignMatrix(X)
     return None
 
@@ -37,9 +39,11 @@ def averagePoolSize2Stride2(experiment):
     windowStep = (2,2)
     poolingLayer = tf.keras.layers.AveragePooling2D(
         pool_size=windowSize,strides=windowStep)
-    X = experiment.getDesignMatrix()
+    X = experiment.getDatasetManager().getDesignMatrix()
+    print("X.shape -> ",X.shape)
     X = poolingLayer.call( X )
-    experiment.setDesignMatrix(X)
+    print("X.shape -> ",X.shape)
+    experiment.getDatasetManager().setDesignMatrix(X)
     return None
 
 def averagePoolSize3Stride1(experiment):
@@ -48,9 +52,11 @@ def averagePoolSize3Stride1(experiment):
     windowStep = (1,1)
     poolingLayer = tf.keras.layers.AveragePooling2D(
         pool_size=windowSize,strides=windowStep)
-    X = experiment.getDesignMatrix()
+    X = experiment.getDatasetManager().getDesignMatrix()
+    print("X.shape -> ",X.shape)
     X = poolingLayer.call( X )
-    experiment.setDesignMatrix(X)
+    print("X.shape -> ",X.shape)
+    experiment.getDatasetManager().setDesignMatrix(X)
     return None
 
 def averagePoolSize3Stride2(experiment):
@@ -59,14 +65,16 @@ def averagePoolSize3Stride2(experiment):
     windowStep = (2,2)
     poolingLayer = tf.keras.layers.AveragePooling2D(
         pool_size=windowSize,strides=windowStep)
-    X = experiment.getDesignMatrix()
+    X = experiment.getDatasetManager().getDesignMatrix()
+    print("X.shape -> ",X.shape)
     X = poolingLayer.call( X )
-    experiment.setDesignMatrix(X)
+    print("X.shape -> ",X.shape)
+    experiment.getDatasetManager().setDesignMatrix(X)
     return None
 
         #### Interpolation Callbacks ####
 
-def interpolateBilinear(experiment):
+def interpolateLinearSpline(experiment):
     """ Perform Bilinear Interpolation """
     numSamples = experiment.getDatasetManager().getNumSamples()
     inputShape = experiment.getDatasetManager().getInputShape()
@@ -86,7 +94,7 @@ def interpolateBilinear(experiment):
     for i in range(numSamples):
         x = X[i]
         interpFunc = Interpolation.interpolate.interp2d(
-            xAxisOld,yAxisOld,x)   # Get interp function
+            xAxisOld,yAxisOld,x,kind='linear',copy=False)   # Get interp function
         y = interpFunc(xAxisNew,yAxisNew).reshape(inputShape)
         Y[i] = y
     # Assign X back to Design Matrix
@@ -108,7 +116,7 @@ def showImages(experiment,n=10):
         plt.close()
     return None
 
-def saveImages(experiment,name="baseline",n=2):
+def saveImages(experiment,name="baseline",n=4):
     """ Log the first 'n' samples in the dataset """
     X = experiment.getDatasetManager().getDesignMatrix()
     for ii in range(0,n,1):
@@ -122,14 +130,14 @@ def saveImages(experiment,name="baseline",n=2):
         plt.close()
     return None
 
-def saveImageBaseline(experiment,n=2):
+def saveImageBaseline(experiment,n=4):
     """ Save first 'n' samples w/ baseline tag """
     return saveImages(experiment,"baseline",n)
 
-def saveImageDownsized(experiment,n=2):
+def saveImageDownsized(experiment,n=4):
     """ Save first 'n' samples w/ baseline tag """
     return saveImages(experiment,"downsized",n)
 
-def saveImageUpscaled(experiment,n=2):
+def saveImageUpscaled(experiment,n=4):
     """ Save first 'n' samples w/ baseline tag """
     return saveImages(experiment,"interpolated",n)
