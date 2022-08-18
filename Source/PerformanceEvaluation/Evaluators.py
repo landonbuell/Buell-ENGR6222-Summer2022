@@ -15,11 +15,15 @@ import sys
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import sklearn.metrics
 
         #### GLOBAL CONSTANTS ####
 
+EPSILON = np.array([1e-3],dtype=np.float64)
+
 NUM_TRAINING_ITERS = 1750
 NUM_EXPERIMENT_REPS = 10
+NUM_CLASSES = 10
 NUM_PIXELS = [729, 196, 676, 169]
 
         #### FUNCTION DEFINTIONS ####
@@ -42,8 +46,153 @@ def plot2D(xData,yData,labels,title,yticks=None):
     plt.close()
     return None
 
+def plotBarChart(yData,labels,title,yticks=None):
+    """ Make a Bar Chart """
+    plt.figure(figsize=(12,8),tight_layout=True)
+    plt.ylabel(title,size=30,weight='bold')
 
-        #### CLASS DEFINITIONS ####
+    xData = np.arange(0,len(yData),1,dtype=np.int16)
+    widths = np.ones(len(yData)) * 0.8
+    colors = ['red','lightblue','green','purple','darkorange']
+    plt.bar(xData,yData,width=widths,color=colors)
+
+    plt.xticks(xData,labels=labels,size=25,rotation=20)
+    if (yticks is not None):
+        plt.yticks(yticks)
+        plt.ylim(min(yticks),max(yticks))
+
+    # Annonate
+    for i in range(len(yData)):
+        txt = str(round(yData[i],4))
+        plt.annotate(txt,(xData[i] - 0.25 ,0.15),color='black',weight='bold',size=20)
+    
+    plt.grid()
+    plt.show()
+    plt.close()
+    return None
+
+def categoricalCrossentropy(x,y):
+    """ Compute + Return Categorical cross entropy objective """
+    cxe = np.empty(shape=(x.shape[0]),dtype=np.float64)
+    for i in range(cxe.shape[0]):
+        cxe[i] = np.dot(x[i],np.log(y[i] + EPSILON))
+    return np.mean(cxe,axis=0)
+
+
+#### CLASS DEFINITIONS FOR TRAINING HISTORY ####
+
+class MetricHistories:
+    """ Structure to hold Metrics """
+
+    def __init__(self,numFiles,numIters=NUM_TRAINING_ITERS):
+        """ Constructor """
+        self.losses     = np.empty(shape=(numFiles,numIters))
+        self.precisions = np.empty(shape=(numFiles,numIters))
+        self.recalls    = np.empty(shape=(numFiles,numIters))
+        self.f1Scores   = np.empty(shape=(numFiles,numIters))
+        self.epochs     = np.arange(numIters,dtype=np.int16)
+
+    def __del__(self):
+        """ Destructor """
+        pass
+
+    def getAverageLoss(self):
+        """ Return Average Loss """
+        return np.mean(self.losses,axis=0)
+
+    def getAveragePrecisions(self):
+        """ Return Average Loss """
+        return np.mean(self.precisions,axis=0)
+
+    def getAverageRecall(self):
+        """ Return Average Loss """
+        return np.mean(self.recalls,axis=0)
+
+    def getAverageF1Score(self):
+        """ Return Average Loss """
+        return np.mean(self.f1Scores,axis=0)
+
+class ModelTrainHistory:
+    """ Evaluate a Single Run Folder """
+
+    def __init__(self,runPath,runName,expPath):
+        """ Constructor """
+        self._runPath = runPath
+        self._runName = runName
+        self._expPath = expPath
+        # Metrics
+        self._epochs        = np.arange(NUM_TRAINING_ITERS)
+
+    def __del__(self):
+        """ Destructor """
+        pass
+
+    # Public Interface
+
+    def run(self):
+        """ Run the Evaluator """
+        historyFiles = self.getAllTrainingHistoryPaths() 
+        metricStruct = MetricHistories(len(historyFiles))
+        # Iterate through all Files
+        for i in range(len(historyFiles)):
+            frame = pd.read_csv(historyFiles[i],index_col=0)
+            metricStruct.losses[i]     = frame["Loss"].to_numpy()
+            metricStruct.precisions[i] = frame["Precision"].to_numpy()
+            metricStruct.recalls[i]    = frame["Recall"].to_numpy()
+            metricStruct.f1Scores[i]   = frame["F1-Score"].to_numpy()
+
+        # Plot Each Runs
+        #self.plotLosses(metricStruct)
+        #self.plotPrecisions(metricStruct)
+        #self.plotRecalls(metricStruct)
+        #self.plotF1Scores(metricStruct)
+
+        # Return the populated struct
+        return metricStruct
+
+    # Private Interface
+
+    def plotLosses(self,metricStruct):
+        """ Plot Results of Runs """
+        x = [metricStruct.epochs] * NUM_EXPERIMENT_REPS
+        y = metricStruct.losses
+        labels = ["RUN {0}".format(i) for i in range(NUM_EXPERIMENT_REPS)]
+        plot2D(x,y,labels,"Losses")
+        return None
+
+    def plotPrecisions(self,metricStruct):
+        """ Plot Results of Runs """
+        x = [metricStruct.epochs] * NUM_EXPERIMENT_REPS
+        y = metricStruct.precisions
+        labels = ["RUN {0}".format(i) for i in range(NUM_EXPERIMENT_REPS)]
+        plot2D(x,y,labels,"Precisions")
+        return None
+
+    def plotRecalls(self,metricStruct):
+        """ Plot Results of Runs """
+        x = [metricStruct.epochs] * NUM_EXPERIMENT_REPS
+        y = metricStruct.recalls
+        labels = ["RUN {0}".format(i) for i in range(NUM_EXPERIMENT_REPS)]
+        plot2D(x,y,labels,"Recalls")
+        return None
+
+    def plotF1Scores(self,metricStruct):
+        """ Plot Results of Runs """
+        x = [metricStruct.epochs] * NUM_EXPERIMENT_REPS
+        y = metricStruct.f1Scores
+        labels = ["RUN {0}".format(i) for i in range(NUM_EXPERIMENT_REPS)]
+        plot2D(x,y,labels,"F1-Scores")
+        return None
+
+    def getAllTrainingHistoryPaths(self):
+        """ Get all paths to Test Results in this folder """
+        items = os.listdir(self._runPath)
+        paths = []
+        for x in items:
+            if x.startswith("trainingHistory_"):
+                y = os.path.join(self._runPath,x)
+                paths.append(y)
+        return paths
 
 class TrainHistories:
     """ Evaluate Multiple Model Training Histories """
@@ -113,7 +262,40 @@ class TrainHistories:
         plot2D(epochs,f1Scores,labels,"Average F1-Score",yTicks)
         return self
 
-class ModelTrainHistory:
+#### CLASS DEFINITIONS FOR TESTINBG RESULTS ####
+
+class MetricResults:
+    """ Structure to hold Metrics """
+
+    def __init__(self,numFiles):
+        """ Constructor """
+        self.losses     = np.empty(shape=(numFiles,))
+        self.precisions = np.empty(shape=(numFiles,))
+        self.recalls    = np.empty(shape=(numFiles,))
+        self.f1Scores   = np.empty(shape=(numFiles,))
+        self.epochs     = np.arange(0,1,dtype=np.int16)
+
+    def __del__(self):
+        """ Destructor """
+        pass
+
+    def getAverageLoss(self):
+        """ Return Average Loss """
+        return np.mean(self.losses,axis=0)
+
+    def getAveragePrecisions(self):
+        """ Return Average Loss """
+        return np.mean(self.precisions,axis=0)
+
+    def getAverageRecall(self):
+        """ Return Average Loss """
+        return np.mean(self.recalls,axis=0)
+
+    def getAverageF1Score(self):
+        """ Return Average Loss """
+        return np.mean(self.f1Scores,axis=0)
+
+class ModelTestResult:
     """ Evaluate a Single Run Folder """
 
     def __init__(self,runPath,runName,expPath):
@@ -132,26 +314,38 @@ class ModelTrainHistory:
 
     def run(self):
         """ Run the Evaluator """
-        historyFiles = self.getAllTrainingHistoryPaths() 
-        metricStruct = MetricHistory(len(historyFiles))
+        resultFiles = self.getAllTestResultPaths() 
+        metricStruct = MetricResults(len(resultFiles))
         # Iterate through all Files
-        for i in range(len(historyFiles)):
-            frame = pd.read_csv(historyFiles[i],index_col=0)
-            metricStruct.losses[i]     = frame["Loss"].to_numpy()
-            metricStruct.precisions[i] = frame["Precision"].to_numpy()
-            metricStruct.recalls[i]    = frame["Recall"].to_numpy()
-            metricStruct.f1Scores[i]   = frame["F1-Score"].to_numpy()
+        for i in range(len(resultFiles)):
+            frame = pd.read_csv(resultFiles[i],index_col=0)
+            truth = frame['Labels'].to_numpy()
+            guess = frame['Predicitions'].to_numpy()
 
-        # Plot Each Runs
-        #self.plotLosses(metricStruct)
-        #self.plotPrecisions(metricStruct)
-        #self.plotRecalls(metricStruct)
-        #self.plotF1Scores(metricStruct)
+            # One-Hot
+            #oneHotTruth = ModelTestResult.oneHotEncode(truth,NUM_CLASSES)
+            #rawOutput = ModelTestResult.organizeRawOutput(frame)
+
+            # Extract into metrics
+            #metricStruct.losses[i]      = categoricalCrossentropy(oneHotTruth,rawOutput)
+            metricStruct.precisions[i]  = sklearn.metrics.precision_score(truth,guess,average="macro")
+            metricStruct.recalls[i]     = sklearn.metrics.recall_score(truth,guess,average="macro")
+            metricStruct.f1Scores[i]    = sklearn.metrics.f1_score(truth,guess,average="macro")
 
         # Return the populated struct
         return metricStruct
 
     # Private Interface
+
+    def getAllTestResultPaths(self):
+        """ Get all paths to Test Results in this folder """
+        items = os.listdir(self._runPath)
+        paths = []
+        for x in items:
+            if x.startswith("testResults_"):
+                y = os.path.join(self._runPath,x)
+                paths.append(y)
+        return paths
 
     def plotLosses(self,metricStruct):
         """ Plot Results of Runs """
@@ -185,53 +379,87 @@ class ModelTrainHistory:
         plot2D(x,y,labels,"F1-Scores")
         return None
 
-    def getAllTestResultPaths(self):
-        """ Get all paths to Test Results in this folder """
-        items = os.listdir(self._runPath)
-        paths = []
-        for x in items:
-            if x.startswith("testResults_"):
-                y = os.path.join(self._runPath,x)
-                paths.append(y)
-        return paths
+    # Static Interface
 
-    def getAllTrainingHistoryPaths(self):
-        """ Get all paths to Test Results in this folder """
-        items = os.listdir(self._runPath)
-        paths = []
-        for x in items:
-            if x.startswith("trainingHistory_"):
-                y = os.path.join(self._runPath,x)
-                paths.append(y)
-        return paths
+    @staticmethod
+    def oneHotEncode(targetVector,numClasses):
+        """ One - Hot encode samples for multi classification """
+        oneHot = np.zeros(shape=(targetVector.shape[0],numClasses),dtype=np.int16)
+        for i,y in enumerate(targetVector):
+            oneHot[i,y] = 1
+        return oneHot
 
-class MetricHistory:
-    """ Structure to hold Metrics Histories """
+    @staticmethod
+    def organizeRawOutput(dataFrame):
+        """ Organize the Raw output of the model into a single array """
+        numSamples = len(dataFrame)
+        outputs = np.empty(shape=(numSamples,NUM_CLASSES))
+        for i in range(NUM_CLASSES):
+            key = "class_{0}".format(i)
+            outputs[:,i] = dataFrame[key].to_numpy()
+        return outputs
 
-    def __init__(self,numFiles):
+class TestResults:
+    """ Evaluate Multiple Model Test Results """
+
+    def __init__(self,runPaths,runNames,exptPath):
         """ Constructor """
-        self.losses     = np.empty(shape=(numFiles,NUM_TRAINING_ITERS))
-        self.precisions = np.empty(shape=(numFiles,NUM_TRAINING_ITERS))
-        self.recalls    = np.empty(shape=(numFiles,NUM_TRAINING_ITERS))
-        self.f1Scores   = np.empty(shape=(numFiles,NUM_TRAINING_ITERS))
-        self.epochs     = np.arange(NUM_TRAINING_ITERS,dtype=np.int16)
+        self._runPaths = runPaths
+        self._runNames = runNames
+        self._exptPath = exptPath
 
     def __del__(self):
         """ Destructor """
         pass
 
-    def getAverageLoss(self):
-        """ Return Average Loss """
-        return np.mean(self.losses,axis=0)
+    def run(self):
+        """ Run the Evaluator """
+        metricStructs = []
+        for (run,name) in zip(self._runPaths,self._runNames):
+            results = ModelTestResult(run,name,self._exptPath)
+            metrics = results.run()
+            metricStructs.append(metrics)
 
-    def getAveragePrecisions(self):
-        """ Return Average Loss """
-        return np.mean(self.precisions,axis=0)
+        # Plot everything!
+        #self.plotLossScore(metricStructs)
+        self.plotPrecisionScore(metricStructs)
+        self.plotRecallScore(metricStructs)
+        self.plotF1Score(metricStructs)
 
-    def getAverageRecall(self):
-        """ Return Average Loss """
-        return np.mean(self.recalls,axis=0)
+        # Return!
+        return self
 
-    def getAverageF1Score(self):
-        """ Return Average Loss """
-        return np.mean(self.f1Scores,axis=0)
+    def plotLossScore(self,metricStructs):
+        """ Plot All Avg Loss Scores """
+        losses = [x.getAverageLoss() for x in metricStructs]
+        labels = self._runNames
+        yTicks = np.arange(0,11,1)
+        plotBarChart(losses,labels,"Average Objective",yTicks)
+        return self
+    
+    def plotPrecisionScore(self,metricStructs):
+        """ Plot All Avg Loss Scores """
+        precisions = [x.getAveragePrecisions() for x in metricStructs]
+        labels = self._runNames
+        yTicks = np.arange(0,1.1,0.1)
+        plotBarChart(precisions,labels,"Average Precision",yTicks)
+        return self
+
+    def plotRecallScore(self,metricStructs):
+        """ Plot All Avg Loss Scores """
+        recalls = [x.getAverageRecall() for x in metricStructs]
+        labels = self._runNames
+        yTicks = np.arange(0,1.1,0.1)
+        plotBarChart(recalls,labels,"Average Recall",yTicks)
+        return self
+
+    def plotF1Score(self,metricStructs):
+        """ Plot All Avg Loss Scores """
+        f1Scores = [x.getAverageF1Score() for x in metricStructs]
+        labels = self._runNames
+        yTicks = np.arange(0,1.1,0.1)
+        plotBarChart(f1Scores,labels,"Average F1-Score",yTicks)
+        return self
+
+
+

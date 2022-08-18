@@ -42,8 +42,11 @@ if __name__ == "__main__":
     
     # Create the Classes to Evaluate + The Training History
 
-    histories = Evaluators.TrainHistories(allRuns,runNames,EXPORT_PATH)
-    histories.run()
+    #histories = Evaluators.TrainHistories(allRuns,runNames,EXPORT_PATH)
+    #histories.run()
+
+    results = Evaluators.TestResults(allRuns,runNames,EXPORT_PATH)
+    results.run()
 
     # Terminate
     sys.exit(0)
