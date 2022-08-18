@@ -19,6 +19,8 @@ import matplotlib.pyplot as plt
         #### GLOBAL CONSTANTS ####
 
 NUM_TRAINING_ITERS = 1750
+NUM_EXPERIMENT_REPS = 10
+NUM_PIXELS = [729, 196, 676, 169]
 
         #### FUNCTION DEFINTIONS ####
 
@@ -26,12 +28,12 @@ def plot2D(xData,yData,labels,title,yticks=None):
     """ Plot Something 2D """
     plt.figure(figsize=(12,8),tight_layout=True)
     #plt.title(title,size=40,weight='bold')
-    plt.xlabel("Index",size=40,weight='bold')
-    plt.ylabel(title,size=40,weight='bold')
+    plt.xlabel("Training Index",size=30,weight='bold')
+    plt.ylabel(title,size=30,weight='bold')
     for i in range(len(labels)):
         plt.plot(xData[i],yData[i],label=labels[i],
-                 linestyle="-.",linewidth=2)
-    plt.legend(fontsize=30)
+                 linestyle="--",linewidth=4)
+    plt.legend(fontsize=25)
     if (yticks is not None):
         plt.yticks(yticks)
         plt.ylim(min(yticks),max(yticks))
@@ -81,7 +83,7 @@ class TrainHistories:
         epochs = [x.epochs for x in metricStructs]
         labels = self._runNames
         yTicks = np.arange(0,11,1)
-        plot2D(epochs,losses,labels,"Average Objective Value",yTicks)
+        plot2D(epochs,losses,labels,"Average Objective",yTicks)
         return self
     
     def plotPrecisionHistory(self,metricStructs):
@@ -90,7 +92,7 @@ class TrainHistories:
         epochs = [x.epochs for x in metricStructs]
         labels = self._runNames
         yTicks = np.arange(0,1.1,0.1)
-        plot2D(epochs,precisions,labels,"Average Precision Score",yTicks)
+        plot2D(epochs,precisions,labels,"Average Precision",yTicks)
         return self
 
     def plotRecallHistory(self,metricStructs):
@@ -99,7 +101,7 @@ class TrainHistories:
         epochs = [x.epochs for x in metricStructs]
         labels = self._runNames
         yTicks = np.arange(0,1.1,0.1)
-        plot2D(epochs,recalls,labels,"Average Recall Score",yTicks)
+        plot2D(epochs,recalls,labels,"Average Recall",yTicks)
         return self
 
     def plotF1ScoreHistory(self,metricStructs):
@@ -140,10 +142,48 @@ class ModelTrainHistory:
             metricStruct.recalls[i]    = frame["Recall"].to_numpy()
             metricStruct.f1Scores[i]   = frame["F1-Score"].to_numpy()
 
+        # Plot Each Runs
+        #self.plotLosses(metricStruct)
+        #self.plotPrecisions(metricStruct)
+        #self.plotRecalls(metricStruct)
+        #self.plotF1Scores(metricStruct)
+
         # Return the populated struct
         return metricStruct
 
     # Private Interface
+
+    def plotLosses(self,metricStruct):
+        """ Plot Results of Runs """
+        x = [metricStruct.epochs] * NUM_EXPERIMENT_REPS
+        y = metricStruct.losses
+        labels = ["RUN {0}".format(i) for i in range(NUM_EXPERIMENT_REPS)]
+        plot2D(x,y,labels,"Losses")
+        return None
+
+    def plotPrecisions(self,metricStruct):
+        """ Plot Results of Runs """
+        x = [metricStruct.epochs] * NUM_EXPERIMENT_REPS
+        y = metricStruct.precisions
+        labels = ["RUN {0}".format(i) for i in range(NUM_EXPERIMENT_REPS)]
+        plot2D(x,y,labels,"Precisions")
+        return None
+
+    def plotRecalls(self,metricStruct):
+        """ Plot Results of Runs """
+        x = [metricStruct.epochs] * NUM_EXPERIMENT_REPS
+        y = metricStruct.recalls
+        labels = ["RUN {0}".format(i) for i in range(NUM_EXPERIMENT_REPS)]
+        plot2D(x,y,labels,"Recalls")
+        return None
+
+    def plotF1Scores(self,metricStruct):
+        """ Plot Results of Runs """
+        x = [metricStruct.epochs] * NUM_EXPERIMENT_REPS
+        y = metricStruct.f1Scores
+        labels = ["RUN {0}".format(i) for i in range(NUM_EXPERIMENT_REPS)]
+        plot2D(x,y,labels,"F1-Scores")
+        return None
 
     def getAllTestResultPaths(self):
         """ Get all paths to Test Results in this folder """

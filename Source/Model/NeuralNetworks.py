@@ -19,9 +19,16 @@ import tensorflow as tf
 
 EPSILON = np.array([1e-8],dtype=np.float32)
 
-METRICS = [ tf.keras.metrics.Precision(),
+
+
+        #### FUNCTION DEFINITIONS ####
+
+def GET_METRIC_FUNCTIONS():
+    """ Return list of Metric function instance """
+    metrics = [ tf.keras.metrics.Precision(),
             tf.keras.metrics.Recall(),
             tf.keras.metrics.Accuracy() ]
+    return metrics
 
         #### CLASS DEFINITIONS ####
 
@@ -192,7 +199,7 @@ class NeuralNetworkModel:
         # Compile
         model.compile(optimizer=tf.keras.optimizers.Adam(),
                       loss=tf.keras.losses.CategoricalCrossentropy(),
-                      metrics=METRICS)
+                      metrics=GET_METRIC_FUNCTIONS())
         return model
 
     

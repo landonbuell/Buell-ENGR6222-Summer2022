@@ -249,6 +249,7 @@ class ConvNeuralNetworkBuilder(AbstractManager):
 
     def buildModel(self):
         """ Call this Instance """
+        self._model = None
         self.registerCallbackFromDatasetCode()
         if (self._modelCallback is None):
             msg = "Dataset loading callback not set!"

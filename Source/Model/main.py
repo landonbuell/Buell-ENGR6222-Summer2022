@@ -24,18 +24,20 @@ if __name__ == "__main__":
     # Experiment Output Paths
     outputPaths = [
         "baseline_Mnist784_v0",
-        "caseStudy1_Mnist784_v0",
+        #"caseStudy1_Mnist784_v0",
         "caseStudy2_Mnist784_v0",
         "caseStudy3_Mnist784_v0",
-        "caseStudy4_Mnist784_v0"]
+        "caseStudy4_Mnist784_v0"
+        ]
 
     # Experiment Instances
     experimentCallbacks = [
         PresetExperiments.getBaselineDigits28x28,
-        PresetExperiments.getCaseStudy1,
+        #PresetExperiments.getCaseStudy1,
         PresetExperiments.getCaseStudy2,
         PresetExperiments.getCaseStudy3,
-        PresetExperiments.getCaseStudy4 ]
+        PresetExperiments.getCaseStudy4 
+        ]
 
     # For Each Experiment
     for outputPath,callback in zip(outputPaths,experimentCallbacks):

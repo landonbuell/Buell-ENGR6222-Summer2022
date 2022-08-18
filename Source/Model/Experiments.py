@@ -211,6 +211,7 @@ class Experiment:
         for i in range(self._numIters):
 
             # Generate the Model w/ a Random Seed
+            tf.keras.backend.clear_session()
             self._modelManager.setSeed(seeds[i])
             self._modelManager.buildModel()
 
